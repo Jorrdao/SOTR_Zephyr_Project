@@ -1,5 +1,6 @@
 {
     "nrf-connect.applications": [
         "${workspaceFolder}/App"
-    ]
+    ],
+    "cmake.sourceDirectory": "/home/jorrdao/UNI/Mestrado/SOTR/Project_2/App"
 }
