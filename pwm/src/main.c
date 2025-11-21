@@ -1,142 +1,72 @@
-/*
- * Copyright (c) 2020 Seagate Technology LLC
- *
- * SPDX-License-Identifier: Apache-2.0
- */
+// main.c (Completo)
 
-#include <zephyr/device.h>
-#include <zephyr/devicetree.h>
-#include <errno.h>
-#include <zephyr/drivers/led.h>
-#include <zephyr/sys/util.h>
 #include <zephyr/kernel.h>
+#include <zephyr/sys/printk.h>
 
-#include <zephyr/logging/log.h>
-LOG_MODULE_REGISTER(main, CONFIG_LOG_DEFAULT_LEVEL);
+// Incluir TODOS os headers necessários
+#include "rtdb.h"
+#include "output_thread.h"
+#include "input_thread.h"  
+#include "siggen_thread.h"  // Necessário para o PWM
+#include "command_thread.h" // Necessário para a UART
 
-#define LED_PWM_NODE_ID	 DT_COMPAT_GET_ANY_STATUS_OKAY(pwm_leds)
+// --- Definições para a thread de SigGen (Prioridade ALTA) ---
+K_THREAD_STACK_DEFINE(siggen_thread_stack, SIGGEN_THREAD_STACK_SIZE);
+static struct k_thread siggen_thread_data;
 
-const char *led_label[] = {
-	DT_FOREACH_CHILD_SEP_VARGS(LED_PWM_NODE_ID, DT_PROP_OR, (,), label, NULL)
-};
+// --- Definições para a thread de Input (Prioridade MÉDIA/ALTA) ---
+K_THREAD_STACK_DEFINE(input_thread_stack, INPUT_THREAD_STACK_SIZE);
+static struct k_thread input_thread_data;
 
-const int num_leds = ARRAY_SIZE(led_label);
+// --- Definições para a thread de CommandParser (Prioridade MÉDIA/BAIXA) ---
+K_THREAD_STACK_DEFINE(command_thread_stack, COMMAND_THREAD_STACK_SIZE);
+static struct k_thread command_thread_data;
 
-#define MAX_BRIGHTNESS	100
+// --- Definições para a thread de Output (Prioridade BAIXA) ---
+K_THREAD_STACK_DEFINE(output_thread_stack, OUTPUT_THREAD_STACK_SIZE);
+static struct k_thread output_thread_data;
 
-/**
- * @brief Run tests on a single LED using the LED API syscalls.
- *
- * @param led_pwm LED PWM device.
- * @param led Number of the LED to test.
- */
-static void run_led_test(const struct device *led_pwm, uint8_t led)
-{
-	int err;
-	int16_t level;
 
-	LOG_INF("Testing LED %d - %s", led, led_label[led] ? : "no label");
+void main(void) {
+    printk("\n--- AWG System: Real-Time Orchestration ---\n");
+    // TODO: Chame a função de inicialização do RTDB aqui, se for externa (e.g., rtdb_init()).
 
-	/* Turn LED on. */
-	err = led_on(led_pwm, led);
-	if (err < 0) {
-		LOG_ERR("err=%d", err);
-		return;
-	}
-	LOG_INF("  Turned on");
-	k_sleep(K_MSEC(1000));
+    // 1. T_SigGen: Geração de Sinal (Prioridade ALTA: Prio 2)
+    k_thread_create(&siggen_thread_data, siggen_thread_stack,
+                    K_THREAD_STACK_SIZEOF(siggen_thread_stack),
+                    siggen_thread_entry, // <-- Função de entrada da T_SigGen
+                    NULL, NULL, NULL,
+                    SIGGEN_THREAD_PRIORITY, 0, K_NO_WAIT);
+    printk("T_SigGen Launched (Prio: %d)\n", SIGGEN_THREAD_PRIORITY);
 
-	/* Turn LED off. */
-	err = led_off(led_pwm, led);
-	if (err < 0) {
-		LOG_ERR("err=%d", err);
-		return;
-	}
-	LOG_INF("  Turned off");
-	k_sleep(K_MSEC(1000));
+    
+    // 2. T_InputUpdate: Processamento de Botões (Prioridade MÉDIA/ALTA: Prio 5)
+    k_thread_create(&input_thread_data, input_thread_stack,
+                    K_THREAD_STACK_SIZEOF(input_thread_stack),
+                    input_thread_entry,
+                    NULL, NULL, NULL,
+                    INPUT_THREAD_PRIORITY, 0, K_NO_WAIT);
+    printk("T_InputUpdate Launched (Prio: %d)\n", INPUT_THREAD_PRIORITY);
 
-	/* Increase LED brightness gradually up to the maximum level. */
-	LOG_INF("  Increasing brightness gradually");
-	for (level = 0; level <= MAX_BRIGHTNESS; level++) {
-		err = led_set_brightness(led_pwm, led, level);
-		if (err < 0) {
-			LOG_ERR("err=%d brightness=%d\n", err, level);
-			return;
-		}
-		k_sleep(K_MSEC(CONFIG_FADE_DELAY));
-	}
-	k_sleep(K_MSEC(1000));
 
-	/* Decrease LED brightness gradually down to the minimum level. */
-	LOG_INF("  Decreasing brightness gradually");
-	for (level = MAX_BRIGHTNESS; level >= 0; level--) {
-		err = led_set_brightness(led_pwm, led, level);
-		if (err < 0) {
-			LOG_ERR("err=%d brightness=%d\n", err, level);
-			return;
-		}
-		k_sleep(K_MSEC(CONFIG_FADE_DELAY));
-	}
-	k_sleep(K_MSEC(1000));
+    // 3. T_CommandParser: Processamento UART (Prioridade MÉDIA/BAIXA: Prio 7)
+    // Deve ter prioridade inferior à T_SigGen e T_InputUpdate para garantir o desacoplamento.
+    k_thread_create(&command_thread_data, command_thread_stack,
+                    K_THREAD_STACK_SIZEOF(command_thread_stack),
+                    command_thread_entry,
+                    NULL, NULL, NULL,
+                    COMMAND_THREAD_PRIORITY, 0, K_NO_WAIT);
+    printk("T_CommandParser Launched (Prio: %d)\n", COMMAND_THREAD_PRIORITY);
 
-#if CONFIG_BLINK_DELAY_SHORT > 0
-	/* Start LED blinking (short cycle) */
-	err = led_blink(led_pwm, led, CONFIG_BLINK_DELAY_SHORT, CONFIG_BLINK_DELAY_SHORT);
-	if (err < 0) {
-		LOG_ERR("err=%d", err);
-		return;
-	}
-	LOG_INF("  Blinking "
-		"on: " STRINGIFY(CONFIG_BLINK_DELAY_SHORT) " msec, "
-		"off: " STRINGIFY(CONFIG_BLINK_DELAY_SHORT) " msec");
-	k_sleep(K_MSEC(5000));
-#endif
 
-#if CONFIG_BLINK_DELAY_LONG > 0
-	/* Start LED blinking (long cycle) */
-	err = led_blink(led_pwm, led, CONFIG_BLINK_DELAY_LONG, CONFIG_BLINK_DELAY_LONG);
-	if (err < 0) {
-		LOG_ERR("err=%d", err);
-		LOG_INF("  Cycle period not supported - "
-			"on: " STRINGIFY(CONFIG_BLINK_DELAY_LONG) "  msec, "
-			"off: " STRINGIFY(CONFIG_BLINK_DELAY_LONG) " msec");
-	} else {
-		LOG_INF("  Blinking "
-			"on: " STRINGIFY(CONFIG_BLINK_DELAY_LONG) " msec, "
-			"off: " STRINGIFY(CONFIG_BLINK_DELAY_LONG) " msec");
-	}
-	k_sleep(K_MSEC(5000));
-#endif
+    // 4. T_OutputUpdate: Controlo de LEDs (Prioridade BAIXA: Prio 10)
+    k_thread_create(&output_thread_data, output_thread_stack,
+                    K_THREAD_STACK_SIZEOF(output_thread_stack),
+                    output_thread_entry,
+                    NULL, NULL, NULL,
+                    OUTPUT_THREAD_PRIORITY, 0, K_NO_WAIT);
+    printk("T_OutputUpdate Launched (Prio: %d)\n", OUTPUT_THREAD_PRIORITY);
 
-	/* Turn LED off. */
-	err = led_off(led_pwm, led);
-	if (err < 0) {
-		LOG_ERR("err=%d", err);
-		return;
-	}
-	LOG_INF("  Turned off, loop end");
-}
 
-int main(void)
-{
-	const struct device *led_pwm;
-	uint8_t led;
-
-	led_pwm = DEVICE_DT_GET(LED_PWM_NODE_ID);
-	if (!device_is_ready(led_pwm)) {
-		LOG_ERR("Device %s is not ready", led_pwm->name);
-		return 0;
-	}
-
-	if (!num_leds) {
-		LOG_ERR("No LEDs found for %s", led_pwm->name);
-		return 0;
-	}
-
-	do {
-		for (led = 0; led < num_leds; led++) {
-			run_led_test(led_pwm, led);
-		}
-	} while (true);
-	return 0;
+    printk("RTOS system initialization complete.\n");
 }
