@@ -1,74 +1,65 @@
 /* nrf52840dk_nrf52840.overlay */
-
 #include <dt-bindings/pinctrl/nrf-pinctrl.h>
 
 / {
     aliases {
-        // Mapeamento dos LEDs restantes
-        led2 = &led1; 
-        led3 = &led2; 
-        led4 = &led3; 
-        
-        // Mapeamento dos botões (inalterado)
+        /* Aliases para Botões e LEDs (Mantidos) */
         but1 = &button0;
         but2 = &button1;
         but3 = &button2;
         but4 = &button3;
+        ledsquare = &led0;
+        ledtriangle = &led1;
+        ledsine = &led2;
+        ledactive = &led3;
 
-        // Alias para a thread de geração de sinal (PWM0)
-        pwmsigout = &pwm0;
+        /* CORREÇÃO CRÍTICA: */
+        /* O alias signal-pwm agora aponta para o NÓ LÓGICO, não para o controlador de hardware */
+        signal-pwm = &pwm_signal_node; 
+    };
+
+    /* Definir um "consumidor" de PWM. É isto que a macro PWM_DT_SPEC_GET espera ler! */
+    pwmleds {
+        compatible = "pwm-leds";
+        pwm_signal_node: pwm_signal_node {
+            /* PWM0, Canal 0, Periodo inicial 20us (50kHz), Flags */
+            pwms = <&pwm0 0 PWM_USEC(20) PWM_POLARITY_NORMAL>;
+        };
     };
 };
 
-/* --- Configurações de Periféricos --- */
-
-// 1. DESATIVAR o LED0 (LED1) para liberar o pino P0.13 para o PWM
-&led0 {
-    status = "disabled"; 
-};
-
-// 2. Garantir que os LEDs restantes (LED2, LED3, LED4) estão ativos para status
-&led1 {
-    status = "okay"; // LED2
-};
-&led2 {
-    status = "okay"; // LED3
-};
-&led3 {
-    status = "okay"; // LED4
-};
-
-
-// 3. Configuração do bloco PWM0 para usar o pino P0.13
+/* Configuração do Hardware PWM0 (Controlador) */
 &pwm0 {
     status = "okay";
-    
-    // 1. Configuração ativa (default) - Usa o pino P0.13
-    pinctrl-0 = <&pwm0_out_p13>; 
-    
-    // 2. Configuração de baixo consumo (sleep) - Usa o pino P0.13 como entrada
-    pinctrl-1 = <&pwm0_sleep>; // Rótulo para a configuração de sleep
-    
-    // 3. LISTA CORRIGIDA (2 strings: "default", "sleep")
+    pinctrl-0 = <&pwm0_out_custom>;
+    pinctrl-1 = <&pwm0_sleep_custom>;
     pinctrl-names = "default", "sleep";
 };
 
-
-// 4. Definição da nova configuração Pinctrl: Mapeia o PINO 13
+/* Configuração dos Pinos (Pin Control) */
 &pinctrl {
-    pwm0_out_p13: pwm0_out_p13 {
+    pwm0_out_custom: pwm0_out_custom {
         group {
-            // Sintaxe CORRIGIDA: Fun, Port, Pin -> (PWM_OUT0, 0, 13)
-            psels = <NRF_PSEL(PWM_OUT0, 0, 13)>;
+            /* Mapeia para P0.03 (A0) */
+            psels = <NRF_PSEL(PWM_OUT0, 0, 3)>;
+            nordic,invert;
         };
     };
 
-    // NOVO: Adicionar a configuração de baixo consumo (sleep)
-    pwm0_sleep: pwm0_sleep {
+    pwm0_sleep_custom: pwm0_sleep_custom {
         group {
-            // Configura o pino P0.13 como GPIO de entrada (para baixo consumo)
-            // O token GPIO não está definido no cabeçalho usado; reutiliza-se o seletor válido acima.
-            psels = <NRF_PSEL(PWM_OUT0, 0, 13)>;
+            psels = <NRF_PSEL(PWM_OUT0, 0, 3)>;
+            low-power-enable;
         };
     };
 };
+
+/* Garantir periféricos ativos */
+&button0 { status = "okay"; };
+&button1 { status = "okay"; };
+&button2 { status = "okay"; };
+&button3 { status = "okay"; };
+&led0 { status = "okay"; };
+&led1 { status = "okay"; };
+&led2 { status = "okay"; };
+&led3 { status = "okay"; };

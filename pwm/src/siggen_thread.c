@@ -1,81 +1,107 @@
-// siggen_thread.c
-
 #include "siggen_thread.h"
 #include "rtdb.h"
 #include <zephyr/drivers/pwm.h>
 #include <zephyr/sys/printk.h>
 
-// Definir o nó do PWM usando o alias (pwmsigout)
-#define PWM_NODE DT_ALIAS(pwmsigout) 
+/* Configurações do PWM Carrier */
+#define PWM_NODE DT_ALIAS(signal_pwm) // Usa o ALIAS que criaste no overlay!
+static const struct pwm_dt_spec pwm_dev = PWM_DT_SPEC_GET(PWM_NODE);
 
-// CORREÇÃO ESSENCIAL: Usar DEVICE_DT_GET para obter o endereço do periférico PWM diretamente,
-// evitando a macro PWM_DT_SPEC_GET que causa o erro.
-static const struct device *pwm_dev = DEVICE_DT_GET(PWM_NODE);
+/* Frequência base do PWM (Carrier) - deve ser > 10x a frequência máxima de amostragem */
+#define PWM_CARRIER_NS  20000 // 50kHz (20µs period)
 
-// O canal que vamos usar é o canal 0, pois definimos pinctrl-0 no DT para o canal 0.
-#define PWM_CHANNEL 0
+/* Variáveis de Controlo Globais (volatile porque são usadas no timer) */
+static volatile int sample_index = 0;
+static volatile wave_type_t current_wave_type = WAVE_SQUARE;
+static volatile uint32_t current_amp_scale = 100; // 0 a 100%
 
-// Vamos definir uma resolução fixa alta para o duty cycle
-#define PWM_MAX_DUTY_CYCLES 10000 
+/* Tabela LUT (coloca a tabela completa aqui) */
+static const float sine_lut[100] = { /* ... valores acima ... */ };
 
+/* Timer do Zephyr para amostragem */
+struct k_timer sample_timer;
 
-static void update_pwm_config(rtdb_state_t state) {
-    
-    // 1. Verificar se o dispositivo está pronto (deve ser verificado na inicialização, mas por segurança)
-    if (!device_is_ready(pwm_dev)) {
-        printk("SigGen ERR: Dispositivo PWM não está pronto!\n");
-        return;
+/* --- Callback do Timer (AQUI ACONTECE A MAGIA) --- */
+void sample_timer_handler(struct k_timer *dummy) {
+    uint32_t pulse_ns = 0;
+
+    switch (current_wave_type) {
+        case WAVE_SINE:
+            // Ler da tabela e escalar pelo periodo do PWM
+            pulse_ns = (uint32_t)(sine_lut[sample_index] * PWM_CARRIER_NS);
+            break;
+
+        case WAVE_TRIANGLE:
+            // Podes criar uma LUT para triângulo ou calcular matematicamente (subir/descer)
+            // Exemplo simplificado (usar LUT seria melhor para performance):
+            if (sample_index < 50) 
+                pulse_ns = (sample_index * 2 * PWM_CARRIER_NS) / 100;
+            else 
+                pulse_ns = ((100 - sample_index) * 2 * PWM_CARRIER_NS) / 100;
+            break;
+
+        case WAVE_SQUARE:
+        default:
+            // Quadrada fixa: 50% metade do tempo, 0% na outra (ou fixo se quiseres DC puro)
+            if (sample_index < 50) pulse_ns = PWM_CARRIER_NS; // High
+            else pulse_ns = 0; // Low
+            break;
     }
-    
-    // 2. Desligar se a saída não estiver ativa
-    if (!state.output_active) {
-        // Define o duty cycle como zero, mantendo o período
-        pwm_set_cycles(pwm_dev, PWM_CHANNEL, 0, 0, 0); 
-        return;
-    }
 
-    // A. Lógica da Frequência (Período)
-    // O período da onda quadrada é inversamente proporcional à frequência desejada (em nanosegundos - ns).
-    uint32_t period_ns = 1000000000UL / state.frequency_hz; 
-    
-    // B. Lógica da Amplitude (Duty Cycle)
-    // Para a Onda Quadrada MVP: Duty Cycle fixo a 50% do período.
-    uint32_t pulse_ns = period_ns / 2; // Onda quadrada ideal 50%
+    // Aplicar Amplitude (Escala simples)
+    // pulse_ns = (pulse_ns * current_amp_scale) / 100; // Se quiseres implementar controlo de volume
 
-    // C. Aplicação
-    // O PWM só deve ser setado para ondas quadradas neste MVP, 
-    // ou para ondas complexas se a lógica já estivesse implementada.
-    if (state.wave_type == WAVE_SQUARE) {
-        int ret = pwm_set_cycles(pwm_dev, PWM_CHANNEL, period_ns, pulse_ns, 0);
+    // Atualizar Hardware
+    pwm_set_dt(&pwm_dev, PWM_CARRIER_NS, pulse_ns);
 
-        if (ret < 0) {
-            printk("SigGen ERR: Falha ao setar PWM para %d Hz\n", state.frequency_hz);
-        } else {
-            printk("SigGen OK: Onda Quadrada de %d Hz ativada.\n", state.frequency_hz);
-        }
-    }
+    // Avançar índice (Circular 0-99)
+    sample_index = (sample_index + 1) % 100;
 }
 
-
+/* --- Thread Principal de Controlo --- */
 void siggen_thread_entry(void *p1, void *p2, void *p3) {
-
-    // 1. Inicialização do Periférico (Verificação única)
-    if (!device_is_ready(pwm_dev)) {
-        printk("SigGen ERR: Dispositivo PWM não está pronto na inicialização!\n");
+    if (!pwm_is_ready_dt(&pwm_dev)) {
+        printk("Erro: PWM device not ready.\n");
         return;
     }
 
-    printk("SigGen Thread Initialized. Priority: %d\n", k_thread_priority_get(k_current_get()));
+    // Inicializar Timer
+    k_timer_init(&sample_timer, sample_timer_handler, NULL);
+
+    int64_t last_print_time = 0;
 
     while (1) {
-        // Para o MVP Quadrado, fazemos polling periódico, embora o ideal seja usar IPC/Semaforo.
-        
-        rtdb_state_t current_state = rtdb_get_state_copy();
-        
-        // Aplica a nova configuração PWM (somente se a frequência/status mudou ou se for necessário)
-        update_pwm_config(current_state);
-        
-        // Polling temporário (o ideal é um semáforo ou timer de alta frequência para amostragem)
-        k_msleep(100); 
+        // 1. Ler RTDB (Baixa frequência, só para ver se o utilizador mudou algo)
+        rtdb_state_t state = rtdb_get_state_copy();
+
+        // 2. Atualizar Variáveis Globais para o Timer usar
+        current_wave_type = state.wave_type;
+
+        if (state.output_active) {
+            // Calcular velocidade do timer baseado na frequência desejada
+            // Periodo do Timer = 1 / (Freq_Sinal * Num_Amostras)
+            // Ex: 50Hz * 100 amostras = 5000Hz -> 200us
+            
+            // Proteção contra divisão por zero
+            if (state.frequency_hz < 1) state.frequency_hz = 1;
+
+            uint32_t sampling_period_us = 1000000 / (state.frequency_hz * 100);
+            
+            // Ajustar o timer (start se estiver parado ou ajustar periodo)
+            k_timer_start(&sample_timer, K_USEC(sampling_period_us), K_USEC(sampling_period_us));
+        } else {
+            k_timer_stop(&sample_timer);
+            pwm_set_dt(&pwm_dev, PWM_CARRIER_NS, 0); // Forçar 0V
+        }
+
+        //Debugging Output
+        int64_t now = k_uptime_get(); // Usa k_uptime_get() que retorna int64_t para evitar overflow rápido
+        if (now - last_print_time >= 5000) { 
+            //printk("[%lld] SIGGEN (Prio 2): Ainda estou vivo! (Freq: %d Hz)\n", now, state.frequency_hz);
+            last_print_time = now;
+        }
+
+
+        k_msleep(100); // Verificar mudanças no RTDB a cada 100ms
     }
 }

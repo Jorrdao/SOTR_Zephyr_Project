@@ -16,9 +16,9 @@ K_SEM_DEFINE(but1_sem, 0, 1);
 static struct gpio_callback but1_cb_data;
 
 // Callback de Interrupção para o BUT1
-void but1_handler(const struct device *dev, void *user_data)
+// CORRETO:
+void but1_handler(const struct device *dev, struct gpio_callback *cb, uint32_t pins)
 {
-    // A callback deve ser o mais rápida possível: apenas sinaliza o semáforo.
     k_sem_give(&but1_sem);
 }
 
@@ -87,6 +87,10 @@ void input_thread_entry(void *p1, void *p2, void *p3) {
     while (1) {
         // Espera de forma síncrona pelo sinal do semáforo, liberando a CPU para outras threads.
         k_sem_take(&but1_sem, K_FOREVER);
+
+        // Debugging Output
+        //printk("[%u] INPUT  (Prio 5): Botão detetado. A processar...\n", k_uptime_get_32());
+        
         
         // Processar o evento fora do contexto de interrupção (ISR)
         handle_wave_type_toggle();

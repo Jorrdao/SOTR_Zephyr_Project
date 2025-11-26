@@ -3,54 +3,66 @@
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/sys/printk.h>
 
-// Definições de GPIO (Deve ser ajustado conforme o seu Device Tree)
-// Estas definições são apenas placeholders
-#define LED2_NODE DT_ALIAS(led2)
-#define LED3_NODE DT_ALIAS(led3)
-#define LED4_NODE DT_ALIAS(led4)
+/* * CRÍTICO: Usar os aliases SEMÂNTICOS definidos no overlay.
+ * Isto torna o código legível e desacoplado do hardware físico.
+ */
+#define LED_SQUARE_NODE   DT_ALIAS(ledsquare)   // Era o led0/led1
+#define LED_TRIANGLE_NODE DT_ALIAS(ledtriangle) // Era o led1/led2
+#define LED_SINE_NODE     DT_ALIAS(ledsine)     // Era o led2/led3
+#define LED_ACTIVE_NODE   DT_ALIAS(ledactive)   // Era o led3/led4
 
-static const struct gpio_dt_spec led2_spec = GPIO_DT_SPEC_GET(LED2_NODE, gpios);
-static const struct gpio_dt_spec led3_spec = GPIO_DT_SPEC_GET(LED3_NODE, gpios);
-static const struct gpio_dt_spec led4_spec = GPIO_DT_SPEC_GET(LED4_NODE, gpios);
+static const struct gpio_dt_spec led_sq_spec = GPIO_DT_SPEC_GET(LED_SQUARE_NODE, gpios);
+static const struct gpio_dt_spec led_tri_spec = GPIO_DT_SPEC_GET(LED_TRIANGLE_NODE, gpios);
+static const struct gpio_dt_spec led_sin_spec = GPIO_DT_SPEC_GET(LED_SINE_NODE, gpios);
+static const struct gpio_dt_spec led_act_spec = GPIO_DT_SPEC_GET(LED_ACTIVE_NODE, gpios);
 
 void output_thread_entry(void *p1, void *p2, void *p3) {
-    // 1. Inicialização dos LEDs
-    if (!device_is_ready(led2_spec.port) || !device_is_ready(led3_spec.port) || !device_is_ready(led4_spec.port)) {
-        printk("Erro: LED device not ready.\n");
+    // Validação de segurança
+    if (!device_is_ready(led_sq_spec.port) || !device_is_ready(led_tri_spec.port) ||
+        !device_is_ready(led_sin_spec.port) || !device_is_ready(led_act_spec.port)) {
+        printk("Erro: Um ou mais LEDs não estão prontos.\n");
         return;
     }
-    gpio_pin_configure_dt(&led2_spec, GPIO_OUTPUT);
-    gpio_pin_configure_dt(&led3_spec, GPIO_OUTPUT);
-    gpio_pin_configure_dt(&led4_spec, GPIO_OUTPUT);
+
+    // Configuração
+    gpio_pin_configure_dt(&led_sq_spec, GPIO_OUTPUT_INACTIVE);
+    gpio_pin_configure_dt(&led_tri_spec, GPIO_OUTPUT_INACTIVE);
+    gpio_pin_configure_dt(&led_sin_spec, GPIO_OUTPUT_INACTIVE);
+    gpio_pin_configure_dt(&led_act_spec, GPIO_OUTPUT_INACTIVE);
 
     while (1) {
-        // 2. Obter estado (Protegido pelo Mutex dentro da função)
+        // Obter cópia segura do estado
         rtdb_state_t state = rtdb_get_state_copy();
 
-        // 3. Atualizar LED4 (Status ON/OFF)
-        gpio_pin_set(led4_spec.port, led4_spec.pin, state.output_active);
+        // 1. Atualizar LED de Status Geral (ON/OFF)
+        gpio_pin_set_dt(&led_act_spec, state.output_active);
 
-        // 4. Atualizar LEDs de Tipo de Onda (Lembrar: LED1 sacrificado)
-        gpio_pin_set(led2_spec.port, led2_spec.pin, 0); // Desliga Triang.
-        gpio_pin_set(led3_spec.port, led3_spec.pin, 0); // Desliga Sinusoidal
+        // 2. Resetar todos os LEDs de tipo de onda
+        gpio_pin_set_dt(&led_sq_spec, 0);
+        gpio_pin_set_dt(&led_tri_spec, 0);
+        gpio_pin_set_dt(&led_sin_spec, 0);
 
+        // 3. Ligar APENAS o LED correspondente
+        // Nota: Só mostramos o tipo se o output estiver ativo? O PDF não especifica,
+        // mas geralmente mostra-se a configuração mesmo com output OFF.
         switch (state.wave_type) {
+            case WAVE_SQUARE:
+                gpio_pin_set_dt(&led_sq_spec, 1); // AGORA SIM, CUMPRIU A SPEC
+                break;
             case WAVE_TRIANGLE:
-                gpio_pin_set(led2_spec.port, led2_spec.pin, 1);
+                gpio_pin_set_dt(&led_tri_spec, 1);
                 break;
             case WAVE_SINE:
-                gpio_pin_set(led3_spec.port, led3_spec.pin, 1);
-                break;
-            case WAVE_SQUARE:
-                // Nenhum LED especial aceso, apenas LED4 se estiver ativo
+                gpio_pin_set_dt(&led_sin_spec, 1);
                 break;
         }
 
-        printk("Output Thread: Reading RTDB and updating LEDs.\n"); 
-        
+        // Debugging Output
+        //printk("[%u] OUTPUT (Prio 10): A atualizar LEDs...\n", k_uptime_get_32());
         k_msleep(500);
 
-        // Aguardar um período (baixa frequência para feedback)
-        k_msleep(500);
+        // Frequência de atualização de 10Hz é suficiente para UI.
+        // 1000ms (1s) é demasiado lento, o utilizador sente lag ao carregar no botão.
+        k_msleep(100); 
     }
 }

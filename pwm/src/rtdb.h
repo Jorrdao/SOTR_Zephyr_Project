@@ -1,3 +1,6 @@
+#ifndef RTDB_H
+#define RTDB_H
+
 #include <zephyr/kernel.h>
 #include <stdbool.h>
 
@@ -16,13 +19,21 @@ typedef struct {
     bool output_active; 
 } rtdb_state_t;
 
-// Protótipo do Mutex (para uso externo - não é comum, mas útil aqui)
+// Protótipo do Mutex (para uso externo)
 extern struct k_mutex rtdb_mutex;
 
-// Funções protegidas de Acesso ao RTDB (Protótipos)
-// A thread de Input usará estas funções para alterar o estado
-void rtdb_set_wave_type(wave_type_t new_type);
-void rtdb_toggle_output_status();
+// --- Funções de Acesso (API) ---
 
-// A thread de Output usará esta função para ler o estado
+// Getters
 rtdb_state_t rtdb_get_state_copy(void);
+
+// Setters (Input Thread)
+void rtdb_set_wave_type(wave_type_t new_type);
+void rtdb_toggle_output_status(void);
+
+// Setters (Command Thread / UART)
+void rtdb_set_frequency(int freq_hz);      // <--- ADICIONADO
+void rtdb_set_output_active(bool active);  // <--- ADICIONADO
+void rtdb_set_amplitude(float amp_v);      // <--- Vais precisar disto para o comando #SA
+
+#endif // RTDB_H
