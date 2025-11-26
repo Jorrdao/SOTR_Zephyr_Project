@@ -3,105 +3,125 @@
 #include <zephyr/drivers/pwm.h>
 #include <zephyr/sys/printk.h>
 
-/* Configurações do PWM Carrier */
-#define PWM_NODE DT_ALIAS(signal_pwm) // Usa o ALIAS que criaste no overlay!
+/* --- CONFIGURAÇÕES DE HARDWARE --- */
+#define PWM_NODE DT_ALIAS(signal_pwm)
+
+/* Frequência da Portadora (Carrier) = 50 kHz (20µs) */
+#define PWM_CARRIER_NS 20000 
+
+/* Tensão de Alimentação da Board (VDD) */
+#define BOARD_VDD_VOLTAGE 3.3f 
+
+/* --- TABELA DE SENO (Look-Up Table) --- */
+/* Exatamente 100 pontos. NÃO ALTERAR O TAMANHO. */
+static const float sine_lut[100] = {
+    0.500f, 0.531f, 0.563f, 0.594f, 0.625f, 0.655f, 0.684f, 0.713f, 0.740f, 0.766f,
+    0.790f, 0.813f, 0.835f, 0.855f, 0.873f, 0.890f, 0.905f, 0.918f, 0.930f, 0.940f,
+    0.949f, 0.957f, 0.963f, 0.969f, 0.973f, 0.976f, 0.978f, 0.979f, 0.979f, 0.978f,
+    0.976f, 0.973f, 0.969f, 0.963f, 0.957f, 0.949f, 0.940f, 0.930f, 0.918f, 0.905f,
+    0.890f, 0.873f, 0.855f, 0.835f, 0.813f, 0.790f, 0.766f, 0.740f, 0.713f, 0.684f,
+    0.655f, 0.625f, 0.594f, 0.563f, 0.531f, 0.500f, 0.469f, 0.437f, 0.406f, 0.375f,
+    0.345f, 0.316f, 0.287f, 0.260f, 0.234f, 0.210f, 0.187f, 0.165f, 0.145f, 0.127f,
+    0.110f, 0.095f, 0.082f, 0.070f, 0.060f, 0.051f, 0.043f, 0.037f, 0.031f, 0.027f,
+    0.024f, 0.022f, 0.021f, 0.021f, 0.021f, 0.022f, 0.024f, 0.027f, 0.031f, 0.037f,
+    0.043f, 0.051f, 0.060f, 0.070f, 0.082f, 0.095f, 0.110f, 0.127f, 0.145f, 0.165f,
+    0.187f, 0.210f, 0.234f, 0.260f, 0.287f, 0.316f, 0.345f, 0.375f, 0.406f, 0.437f
+};
+
+/* --- VARIÁVEIS DE CONTROLO --- */
 static const struct pwm_dt_spec pwm_dev = PWM_DT_SPEC_GET(PWM_NODE);
+static struct k_timer sample_timer;
 
-/* Frequência base do PWM (Carrier) - deve ser > 10x a frequência máxima de amostragem */
-#define PWM_CARRIER_NS  20000 // 50kHz (20µs period)
-
-/* Variáveis de Controlo Globais (volatile porque são usadas no timer) */
 static volatile int sample_index = 0;
 static volatile wave_type_t current_wave_type = WAVE_SQUARE;
-static volatile uint32_t current_amp_scale = 100; // 0 a 100%
+static volatile float current_amplitude_v = 0.0f;
+static volatile bool is_output_active = false;
 
-/* Tabela LUT (coloca a tabela completa aqui) */
-static const float sine_lut[100] = { /* ... valores acima ... */ };
-
-/* Timer do Zephyr para amostragem */
-struct k_timer sample_timer;
-
-/* --- Callback do Timer (AQUI ACONTECE A MAGIA) --- */
+/* --- TIMER INTERRUPT HANDLER --- */
 void sample_timer_handler(struct k_timer *dummy) {
-    uint32_t pulse_ns = 0;
+    if (!is_output_active) return;
 
+    float shape_value = 0.0f; 
+
+    // 1. Calcular Forma de Onda
     switch (current_wave_type) {
         case WAVE_SINE:
-            // Ler da tabela e escalar pelo periodo do PWM
-            pulse_ns = (uint32_t)(sine_lut[sample_index] * PWM_CARRIER_NS);
+            shape_value = sine_lut[sample_index];
             break;
-
         case WAVE_TRIANGLE:
-            // Podes criar uma LUT para triângulo ou calcular matematicamente (subir/descer)
-            // Exemplo simplificado (usar LUT seria melhor para performance):
-            if (sample_index < 50) 
-                pulse_ns = (sample_index * 2 * PWM_CARRIER_NS) / 100;
-            else 
-                pulse_ns = ((100 - sample_index) * 2 * PWM_CARRIER_NS) / 100;
+            if (sample_index < 50) shape_value = (float)sample_index / 50.0f;
+            else shape_value = (float)(100 - sample_index) / 50.0f;
             break;
-
         case WAVE_SQUARE:
         default:
-            // Quadrada fixa: 50% metade do tempo, 0% na outra (ou fixo se quiseres DC puro)
-            if (sample_index < 50) pulse_ns = PWM_CARRIER_NS; // High
-            else pulse_ns = 0; // Low
+            if (sample_index < 50) shape_value = 1.0f;
+            else shape_value = 0.0f;
             break;
     }
 
-    // Aplicar Amplitude (Escala simples)
-    // pulse_ns = (pulse_ns * current_amp_scale) / 100; // Se quiseres implementar controlo de volume
+    // 2. Aplicar Escala de Amplitude
+    float target_v = current_amplitude_v;
+    
+    // Limites de Segurança
+    if (target_v > 2.5f) target_v = 2.5f; 
+    if (target_v < 0.0f) target_v = 0.0f;
 
-    // Atualizar Hardware
+    // Fator de escala (Regra de 3 simples com a tensão VDD)
+    float scale_factor = target_v / BOARD_VDD_VOLTAGE;
+    
+    // Calcular largura de pulso em nanosegundos
+    uint32_t pulse_ns = (uint32_t)(shape_value * scale_factor * PWM_CARRIER_NS);
+
+    // 3. Atualizar Hardware
     pwm_set_dt(&pwm_dev, PWM_CARRIER_NS, pulse_ns);
 
-    // Avançar índice (Circular 0-99)
-    sample_index = (sample_index + 1) % 100;
+    // 4. Avançar índice
+    sample_index++;
+    if (sample_index >= 100) sample_index = 0;
 }
 
-/* --- Thread Principal de Controlo --- */
+/* --- THREAD PRINCIPAL --- */
 void siggen_thread_entry(void *p1, void *p2, void *p3) {
     if (!pwm_is_ready_dt(&pwm_dev)) {
-        printk("Erro: PWM device not ready.\n");
+        printk("SIGGEN FATAL: PWM device not ready!\n");
         return;
     }
 
-    // Inicializar Timer
     k_timer_init(&sample_timer, sample_timer_handler, NULL);
+    printk("SIGGEN: Thread started.\n");
 
-    int64_t last_print_time = 0;
+    int last_freq = -1;
+    bool last_active = false;
 
     while (1) {
-        // 1. Ler RTDB (Baixa frequência, só para ver se o utilizador mudou algo)
+        // Ler RTDB
         rtdb_state_t state = rtdb_get_state_copy();
 
-        // 2. Atualizar Variáveis Globais para o Timer usar
+        // Atualizar variáveis globais
         current_wave_type = state.wave_type;
+        current_amplitude_v = state.amplitude_v;
+        is_output_active = state.output_active;
 
+        // Gestão do Timer (Frequência)
         if (state.output_active) {
-            // Calcular velocidade do timer baseado na frequência desejada
-            // Periodo do Timer = 1 / (Freq_Sinal * Num_Amostras)
-            // Ex: 50Hz * 100 amostras = 5000Hz -> 200us
-            
-            // Proteção contra divisão por zero
-            if (state.frequency_hz < 1) state.frequency_hz = 1;
+            if (!last_active || state.frequency_hz != last_freq) {
+                int safe_freq = state.frequency_hz;
+                if (safe_freq < 1) safe_freq = 1;
 
-            uint32_t sampling_period_us = 1000000 / (state.frequency_hz * 100);
-            
-            // Ajustar o timer (start se estiver parado ou ajustar periodo)
-            k_timer_start(&sample_timer, K_USEC(sampling_period_us), K_USEC(sampling_period_us));
+                // Periodo = 1s / (Freq * 100 amostras)
+                uint32_t sample_period_us = 1000000 / (safe_freq * 100);
+                k_timer_start(&sample_timer, K_USEC(sample_period_us), K_USEC(sample_period_us));
+            }
         } else {
-            k_timer_stop(&sample_timer);
-            pwm_set_dt(&pwm_dev, PWM_CARRIER_NS, 0); // Forçar 0V
+            if (last_active) {
+                k_timer_stop(&sample_timer);
+                pwm_set_dt(&pwm_dev, PWM_CARRIER_NS, 0); 
+            }
         }
 
-        //Debugging Output
-        int64_t now = k_uptime_get(); // Usa k_uptime_get() que retorna int64_t para evitar overflow rápido
-        if (now - last_print_time >= 5000) { 
-            //printk("[%lld] SIGGEN (Prio 2): Ainda estou vivo! (Freq: %d Hz)\n", now, state.frequency_hz);
-            last_print_time = now;
-        }
+        last_freq = state.frequency_hz;
+        last_active = state.output_active;
 
-
-        k_msleep(100); // Verificar mudanças no RTDB a cada 100ms
+        k_msleep(100);
     }
 }
