@@ -1,6 +1,6 @@
 #include "rtdb.h"
 
-// Definição global do Mutex (visível externamente através do rtdb.h)
+
 K_MUTEX_DEFINE(rtdb_mutex);
 
 // Instância única do RTDB
@@ -24,14 +24,14 @@ void rtdb_set_amplitude(float amp_v) {
 void rtdb_set_frequency(int freq_hz) {
     k_mutex_lock(&rtdb_mutex, K_FOREVER);
 
-    // Validação de segurança (Opcional mas recomendada em RTOS)
-    // O PDF diz 10Hz a 100Hz. Vamos garantir que não entramos em zonas instáveis.
+    // Validação de segurança 
+    //  diz 10Hz a 100Hz.  garantir que não entramos em zonas instáveis.
     if (freq_hz < 1) freq_hz = 1; 
-    if (freq_hz > 100) freq_hz = 100; // Limite do PDF
+    if (freq_hz > 100) freq_hz = 100; 
 
     rtdb_current_state.frequency_hz = freq_hz;
     
-    // Debug (opcional, cuidado com o excesso de logs em produção)
+    // Debug (
     // printk("RTDB: Frequency updated to %d Hz\n", freq_hz);
 
     k_mutex_unlock(&rtdb_mutex);
@@ -53,7 +53,7 @@ void rtdb_set_wave_type(wave_type_t new_type) {
     rtdb_current_state.wave_type = new_type;
     
     k_mutex_unlock(&rtdb_mutex);
-    // TODO: Adicionar aqui lógica de notificação (Semaforo) para T_SigGen e T_OutputUpdate
+    // TODO?: Adicionar aqui lógica de notificação (Semaforo) para T_SigGen e T_OutputUpdate
 }
 
 void rtdb_toggle_output_status() {

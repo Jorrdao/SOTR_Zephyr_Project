@@ -7,8 +7,8 @@
 #include "rtdb.h"
 #include "output_thread.h"
 #include "input_thread.h"  
-#include "siggen_thread.h"  // Necessário para o PWM
-#include "command_thread.h" // Necessário para a UART
+#include "siggen_thread.h"  
+#include "command_thread.h" 
 
 // --- Definições para a thread de SigGen (Prioridade ALTA) ---
 K_THREAD_STACK_DEFINE(siggen_thread_stack, SIGGEN_THREAD_STACK_SIZE);
@@ -50,7 +50,6 @@ void main(void) {
 
 
     // 3. T_CommandParser: Processamento UART (Prioridade MÉDIA/BAIXA: Prio 7)
-    // Deve ter prioridade inferior à T_SigGen e T_InputUpdate para garantir o desacoplamento.
     k_thread_create(&command_thread_data, command_thread_stack,
                     K_THREAD_STACK_SIZEOF(command_thread_stack),
                     command_thread_entry,

@@ -13,7 +13,7 @@
 #define BOARD_VDD_VOLTAGE 3.3f 
 
 /* --- TABELA DE SENO (Look-Up Table) --- */
-/* Exatamente 100 pontos. NÃO ALTERAR O TAMANHO. */
+
 static const float sine_lut[100] = {
     0.500f, 0.531f, 0.563f, 0.594f, 0.625f, 0.655f, 0.684f, 0.713f, 0.740f, 0.766f,
     0.790f, 0.813f, 0.835f, 0.855f, 0.873f, 0.890f, 0.905f, 0.918f, 0.930f, 0.940f,
@@ -86,6 +86,7 @@ void siggen_thread_entry(void *p1, void *p2, void *p3) {
         printk("SIGGEN FATAL: PWM device not ready!\n");
         return;
     }
+
 
     k_timer_init(&sample_timer, sample_timer_handler, NULL);
     printk("SIGGEN: Thread started.\n");

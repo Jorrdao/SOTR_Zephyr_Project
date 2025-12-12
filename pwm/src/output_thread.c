@@ -3,9 +3,7 @@
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/sys/printk.h>
 
-/* * CRÍTICO: Usar os aliases SEMÂNTICOS definidos no overlay.
- * Isto torna o código legível e desacoplado do hardware físico.
- */
+
 #define LED_SQUARE_NODE   DT_ALIAS(ledsquare)   // Era o led0/led1
 #define LED_TRIANGLE_NODE DT_ALIAS(ledtriangle) // Era o led1/led2
 #define LED_SINE_NODE     DT_ALIAS(ledsine)     // Era o led2/led3
