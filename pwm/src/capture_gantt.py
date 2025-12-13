@@ -1,310 +1,145 @@
-#!/usr/bin/env python3
-"""
-================================================================================
-GANTT CHART GENERATOR PARA ZEPHYR RTOS
-================================================================================
-
-Este script processa os dados CSV enviados pela UART e gera um Gantt chart
-mostrando a execução das threads em tempo real.
-
-PASSOS DE UTILIZAÇÃO:
-1. Conectar a board via USB
-2. Executar: python3 capture_gantt.py /dev/ttyACM0 (ou COM port no Windows)
-3. Deixar correr por ~10 segundos
-4. Pressionar Ctrl+C
-5. O script gera automaticamente gantt_chart.png
-
-FORMATO DO CSV (recebido via UART):
-timestamp_us,thread_id,thread_name,event_type
-1234567,0,T_SigGen,START
-1234890,0,T_SigGen,END
-...
-
-================================================================================
-"""
-
 import sys
 import serial
 import csv
 import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
-from datetime import datetime
-import signal
 import time
+import threading
 
-# ============================================================================
-# CONFIGURAÇÃO
-# ============================================================================
-
-BAUD_RATE = 115200
-TIMEOUT = 1.0
+# --- CONFIGURAÇÃO ---
 CSV_OUTPUT_FILE = "gantt_log.csv"
 CHART_OUTPUT_FILE = "gantt_chart.png"
+BAUD_RATE = 115200
 
-# Cores para cada thread (visualmente distintas)
-THREAD_COLORS = {
-    'T_SigGen':   '#FF6B6B',  # Vermelho (alta prioridade)
-    'T_Input':    '#4ECDC4',  # Turquesa
-    'T_Command':  '#45B7D1',  # Azul
-    'T_Output':   '#96CEB4',  # Verde (baixa prioridade)
-    'T_Logger':   '#FFEAA7',  # Amarelo (background)
-    'UNKNOWN':    '#DDD'      # Cinzento
-}
-
-# ============================================================================
-# CAPTURA DE DADOS VIA UART
-# ============================================================================
-
-class GanttDataCapture:
-    def __init__(self, serial_port):
-        self.port = serial_port
-        self.serial_conn = None
-        self.csv_file = None
-        self.csv_writer = None
-        self.running = False
-        self.event_count = 0
-        
-    def start_capture(self):
-        """Inicia a captura de dados da UART"""
-        try:
-            # Abrir porta série
-            self.serial_conn = serial.Serial(
-                self.port, 
-                BAUD_RATE, 
-                timeout=TIMEOUT
-            )
-            print(f"[OK] Conectado a {self.port} @ {BAUD_RATE} baud")
-            
-            # Abrir ficheiro CSV
-            self.csv_file = open(CSV_OUTPUT_FILE, 'w', newline='')
-            self.csv_writer = csv.writer(self.csv_file)
-            
-            # Escrever cabeçalho
-            self.csv_writer.writerow([
-                'timestamp_us', 
-                'thread_id', 
-                'thread_name', 
-                'event_type'
-            ])
-            
-            self.running = True
-            print("[OK] A capturar dados... (Ctrl+C para parar)\n")
-            
-            # Loop de captura
-            while self.running:
-                try:
-                    line = self.serial_conn.readline().decode('utf-8').strip()
-                    
-                    if line and not line.startswith('GANTT') and not line.startswith('timestamp'):
-                        # Parsear linha CSV
-                        parts = line.split(',')
-                        if len(parts) == 4:
-                            self.csv_writer.writerow(parts)
-                            self.csv_file.flush()  # Garantir escrita imediata
-                            
-                            self.event_count += 1
-                            if self.event_count % 100 == 0:
-                                print(f"Eventos capturados: {self.event_count}")
-                        else:
-                            # Linha de debug/status do sistema
-                            print(f"[INFO] {line}")
-                
-                except UnicodeDecodeError:
-                    # Ignorar dados binários/corrompidos
-                    pass
-                except KeyboardInterrupt:
-                    break
-                    
-        except serial.SerialException as e:
-            print(f"[ERRO] Falha ao abrir porta série: {e}")
-            return False
-        except Exception as e:
-            print(f"[ERRO] {e}")
-            return False
-        finally:
-            self.stop_capture()
-        
-        return True
+# --- HELPER: Envio Lento (A CORREÇÃO CRÍTICA) ---
+def send_packet_slow(ser, cmd):
+    """Calcula checksum e envia byte-a-byte com pausa para não bloquear a UART"""
+    xor = 0
+    for c in cmd: xor ^= ord(c)
+    packet = f"#{cmd}*{xor:02X}$"
     
-    def stop_capture(self):
-        """Para a captura e fecha os recursos"""
-        self.running = False
-        
-        if self.csv_file:
-            self.csv_file.close()
-            print(f"\n[OK] Dados guardados em '{CSV_OUTPUT_FILE}'")
-        
-        if self.serial_conn:
-            self.serial_conn.close()
-            print(f"[OK] Porta série fechada")
-        
-        print(f"[OK] Total de eventos capturados: {self.event_count}")
+    print(f"[TX] >> {packet}")
+    for byte in packet:
+        ser.write(byte.encode())
+        time.sleep(0.005) # <--- O SEGREDO: 5ms de pausa evita Buffer Overflow no Zephyr
 
-# ============================================================================
-# GERAÇÃO DO GANTT CHART
-# ============================================================================
+# --- HELPER: Tarefa de Injeção de Comandos ---
+def injector_task(ser):
+    # Espera inicial para garantir que o logging arrancou
+    time.sleep(1.5) 
+    
+    # 1. Mudar para 80Hz (Para veres barras muito juntas no gráfico)
+    print("\n[INJECTOR] A mudar para 80Hz...")
+    send_packet_slow(ser, "SF 80")
+    
+    time.sleep(2)
+    # 2. Mudar Amplitude (Só para validar comando)
+    print("[INJECTOR] A mudar Amplitude...")
+    send_packet_slow(ser, "SA 1.0")
+    
+    time.sleep(2)
+    # 3. Mudar para 20Hz (Para veres barras afastadas no gráfico)
+    print("[INJECTOR] A mudar para 20Hz...")
+    send_packet_slow(ser, "SF 20")
+    
+    time.sleep(2)
+    print("[INJECTOR] Fim do teste. A desligar logs...")
+    send_packet_slow(ser, "GL OFF")
 
-def generate_gantt_chart(csv_file, output_file, duration_ms=10000):
-    """
-    Gera o Gantt chart a partir do CSV
-    
-    Args:
-        csv_file: Ficheiro CSV com os dados
-        output_file: Nome do ficheiro PNG de saída
-        duration_ms: Duração a mostrar no chart (em milissegundos)
-    """
-    print(f"\n[PROCESSING] A gerar Gantt chart...")
-    
-    # Ler dados
+# --- HELPER: Gerar Gráfico ---
+def generate_gantt_chart(csv_file, output_file):
     try:
         df = pd.read_csv(csv_file)
-    except pd.errors.EmptyDataError:
-        print("[ERRO] Ficheiro CSV vazio!")
-        return False
+        if df.empty:
+            print("[GRAPH] AVISO: O CSV está vazio. O comando #GL ON falhou?")
+            return
+    except:
+        print("[GRAPH] Erro ao ler CSV.")
+        return
+
+    # Limpeza de dados
+    df = df[pd.to_numeric(df['timestamp_us'], errors='coerce').notnull()]
+    df['timestamp_us'] = df['timestamp_us'].astype(float)
+    if df.empty: return
+
+    # Normalizar tempo para começar em 0 segundos
+    start_time = df['timestamp_us'].min()
+    df['rel_time_s'] = (df['timestamp_us'] - start_time) / 1e6
+
+    fig, ax = plt.subplots(figsize=(14, 6))
     
-    if df.empty:
-        print("[ERRO] Nenhum dado para processar!")
-        return False
-    
-    print(f"[OK] {len(df)} eventos carregados")
-    
-    # Converter timestamps para milissegundos relativos
-    df['timestamp_ms'] = (df['timestamp_us'] - df['timestamp_us'].min()) / 1000.0
-    
-    # Filtrar pela duração desejada
-    df = df[df['timestamp_ms'] <= duration_ms]
-    
-    # Processar eventos START/END para criar barras
-    threads = df['thread_name'].unique()
-    thread_executions = {thread: [] for thread in threads}
-    
-    # Dicionário para guardar o último START de cada thread
-    last_start = {}
-    
-    for _, row in df.iterrows():
-        thread = row['thread_name']
-        
+    # Cores para cada thread
+    color_map = {
+        'T_SigGen': 'tab:red',
+        'T_Input': 'tab:green',
+        'T_Command': 'tab:blue',   # Ajusta o nome conforme o teu registo no C
+        'T_Cmd': 'tab:blue',       # Caso tenhas mudado o nome
+        'T_Output': 'tab:orange'
+    }
+
+    # Desenhar barras
+    # width=0.005 (5ms) garante que vês traços finos e não blocos sólidos
+    for i, row in df.iterrows():
+        name = row['thread_name']
         if row['event_type'] == 'START':
-            last_start[thread] = row['timestamp_ms']
-        
-        elif row['event_type'] == 'END' and thread in last_start:
-            start_time = last_start[thread]
-            end_time = row['timestamp_ms']
-            duration = end_time - start_time
-            
-            # Adicionar execução
-            thread_executions[thread].append({
-                'start': start_time,
-                'duration': duration
-            })
-            
-            # Limpar
-            del last_start[thread]
-    
-    # Criar figura
-    fig, ax = plt.subplots(figsize=(14, 8))
-    
-    # Plotar cada thread
-    thread_list = sorted(threads)
-    y_positions = {thread: i for i, thread in enumerate(thread_list)}
-    
-    for thread in thread_list:
-        y_pos = y_positions[thread]
-        color = THREAD_COLORS.get(thread, THREAD_COLORS['UNKNOWN'])
-        
-        for execution in thread_executions[thread]:
-            ax.barh(
-                y_pos, 
-                execution['duration'], 
-                left=execution['start'], 
-                height=0.8,
-                color=color,
-                edgecolor='black',
-                linewidth=0.5
-            )
-    
-    # Configurar eixos
-    ax.set_yticks(range(len(thread_list)))
-    ax.set_yticklabels(thread_list)
-    ax.set_xlabel('Time (milliseconds)', fontsize=12, fontweight='bold')
-    ax.set_ylabel('Thread', fontsize=12, fontweight='bold')
-    ax.set_title('Real-Time Task Execution - Gantt Chart', 
-                 fontsize=14, fontweight='bold', pad=20)
-    
-    # Grid
-    ax.grid(True, axis='x', alpha=0.3, linestyle='--')
-    ax.set_xlim(0, duration_ms)
-    
-    # Legenda
-    legend_patches = [
-        mpatches.Patch(color=THREAD_COLORS.get(t, THREAD_COLORS['UNKNOWN']), 
-                      label=t) 
-        for t in thread_list
-    ]
-    ax.legend(handles=legend_patches, loc='upper right', 
-             framealpha=0.9, fontsize=10)
-    
-    # Layout
+            c = color_map.get(name, 'gray')
+            ax.barh(name, 0.005, left=row['rel_time_s'], height=0.6, color=c)
+
+    ax.set_xlabel('Tempo (segundos)')
+    ax.set_title('Diagrama de Gantt - Execução em Tempo Real')
+    ax.grid(True, axis='x', linestyle='--', alpha=0.5)
     plt.tight_layout()
-    
-    # Guardar
-    plt.savefig(output_file, dpi=300, bbox_inches='tight')
-    print(f"[OK] Gantt chart guardado em '{output_file}'")
-    
-    # Mostrar estatísticas
-    print("\n=== ESTATÍSTICAS DE EXECUÇÃO ===")
-    for thread in thread_list:
-        executions = thread_executions[thread]
-        if executions:
-            durations = [e['duration'] for e in executions]
-            print(f"{thread}:")
-            print(f"  Execuções: {len(executions)}")
-            print(f"  Duração média: {sum(durations)/len(durations):.2f} ms")
-            print(f"  Duração mín: {min(durations):.2f} ms")
-            print(f"  Duração máx: {max(durations):.2f} ms")
-    
-    return True
+    plt.savefig(output_file, dpi=150)
+    print(f"[GRAPH] Gráfico guardado em: {output_file}")
 
-# ============================================================================
-# MAIN
-# ============================================================================
-
+# --- MAIN ---
 def main():
     if len(sys.argv) < 2:
-        print("Uso: python3 capture_gantt.py <porta_serie>")
-        print("Exemplo Linux: python3 capture_gantt.py /dev/ttyACM0")
-        print("Exemplo Windows: python3 capture_gantt.py COM3")
-        sys.exit(1)
+        print("Uso: python3 capture_gantt.py /dev/ttyACM0")
+        return
+
+    port = sys.argv[1]
     
-    serial_port = sys.argv[1]
-    
-    print("=" * 80)
-    print("GANTT CHART CAPTURE - Zephyr RTOS")
-    print("=" * 80)
-    
-    # Capturar dados
-    capturer = GanttDataCapture(serial_port)
-    
-    # Handler para Ctrl+C
-    def signal_handler(sig, frame):
-        print("\n[INFO] A parar captura...")
-        capturer.stop_capture()
-    
-    signal.signal(signal.SIGINT, signal_handler)
-    
-    # Iniciar captura
-    if capturer.start_capture():
-        # Gerar chart
-        time.sleep(1)  # Dar tempo para fechar ficheiros
-        generate_gantt_chart(CSV_OUTPUT_FILE, CHART_OUTPUT_FILE)
+    try:
+        ser = serial.Serial(port, BAUD_RATE, timeout=1)
+        print(f"[INIT] Conectado a {port}")
         
-        print("\n" + "=" * 80)
-        print("CONCLUÍDO!")
-        print("=" * 80)
-    else:
-        print("[ERRO] Falha na captura de dados")
-        sys.exit(1)
+        # 1. ATIVAR LOGGING (Usando envio lento para garantir que a placa aceita!)
+        print("[INIT] A ativar Gantt Logger...")
+        send_packet_slow(ser, "GL ON")
+        
+        # 2. Iniciar Injetor em paralelo
+        t = threading.Thread(target=injector_task, args=(ser,), daemon=True)
+        t.start()
+        
+        # 3. Gravar Dados
+        with open(CSV_OUTPUT_FILE, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(['timestamp_us', 'thread_id', 'thread_name', 'event_type'])
+            
+            print("[REC] A capturar dados... Aguarda ~8 segundos.")
+            start_time = time.time()
+            last_pkt_time = time.time()
+            
+            while True:
+                line = ser.readline().decode(errors='ignore').strip()
+                if line:
+                    last_pkt_time = time.time()
+                    parts = line.split(',')
+                    # Só guarda se for CSV válido (ignora ACKs e NACKs)
+                    if len(parts) == 4 and parts[0].isdigit():
+                        writer.writerow(parts)
+                
+                # Para se houver silêncio (GL OFF aceite) ou timeout
+                if (time.time() - last_pkt_time > 2.0 and time.time() - start_time > 3):
+                    print("[FIM] Captura terminada.")
+                    break
+                    
+    except Exception as e:
+        print(f"Erro: {e}")
+        return
+
+    generate_gantt_chart(CSV_OUTPUT_FILE, CHART_OUTPUT_FILE)
 
 if __name__ == "__main__":
     main()

@@ -18,6 +18,8 @@ static struct {
     atomic_t dropped_events; // Contador de eventos perdidos
 } gantt_ring_buffer;
 
+static bool logger_enabled = false; // Começa desligado (Silencioso)
+
 /* --- REGISTO DE THREADS --- */
 typedef struct {
     char name[GANTT_MAX_THREAD_NAME];
@@ -77,7 +79,7 @@ uint8_t gantt_register_thread(const char *thread_name) {
     registered_threads[id].name[GANTT_MAX_THREAD_NAME - 1] = '\0';
     registered_threads[id].in_use = true;
     
-    printk("GANTT: Thread '%s' registered with ID %d\n", thread_name, id);
+    //printk("GANTT: Thread '%s' registered with ID %d\n", thread_name, id);
     
     return id;
 }
@@ -127,30 +129,34 @@ static void send_uart_line(const char *line) {
 
 static void logger_thread_entry(void *p1, void *p2, void *p3) {
     char csv_line[128];
-    uint32_t last_dropped = 0;
     
-    // Enviar cabeçalho CSV
-    send_uart_line("timestamp_us,thread_id,thread_name,event_type\r\n");
-    
-    printk("GANTT LOGGER: Background thread started (Prio %d)\n", 
-           LOGGER_THREAD_PRIORITY);
+    // Opcional: Enviar cabeçalho apenas quando liga, mas aqui garante que temos sempre um
+    // send_uart_line("timestamp_us,thread_id,thread_name,event_type\r\n");
     
     while (1) {
-        // Verificar se há eventos no buffer
+        // --- MODO SILENCIOSO ---
+        if (!logger_enabled) {
+            // Esvaziar o buffer silenciosamente (discard)
+            // Isto garante que quando ligares, vês dados novos e não velhos
+            atomic_val_t write_now = atomic_get(&gantt_ring_buffer.write_idx);
+            atomic_set(&gantt_ring_buffer.read_idx, write_now);
+            
+            k_msleep(100); // Dorme e verifica de novo daqui a pouco
+            continue; 
+        }
+
+        // --- MODO ATIVO (Igual ao que tinhas) ---
         uint32_t read_pos = atomic_get(&gantt_ring_buffer.read_idx);
         uint32_t write_pos = atomic_get(&gantt_ring_buffer.write_idx);
         
         if (read_pos != write_pos) {
-            // Há eventos para processar!
             gantt_event_t evt = gantt_ring_buffer.events[read_pos % GANTT_LOG_BUFFER_SIZE];
             
-            // Obter nome da thread
             const char *thread_name = "UNKNOWN";
             if (evt.thread_id < 256 && registered_threads[evt.thread_id].in_use) {
                 thread_name = registered_threads[evt.thread_id].name;
             }
             
-            // Construir linha CSV
             snprintf(csv_line, sizeof(csv_line), 
                      "%u,%d,%s,%s\r\n",
                      evt.timestamp_us,
@@ -158,23 +164,12 @@ static void logger_thread_entry(void *p1, void *p2, void *p3) {
                      thread_name,
                      evt.event_type == GANTT_EVENT_START ? "START" : "END");
             
-            // Enviar para UART
             send_uart_line(csv_line);
             
-            // Avançar índice de leitura (atómico!)
             atomic_inc(&gantt_ring_buffer.read_idx);
+        } else {
+            k_msleep(10); // Buffer vazio
         }
-        
-        // Verificar eventos perdidos
-        uint32_t dropped = atomic_get(&gantt_ring_buffer.dropped_events);
-        if (dropped != last_dropped) {
-            printk("GANTT WARNING: %u events dropped (buffer overflow)\n", 
-                   dropped - last_dropped);
-            last_dropped = dropped;
-        }
-        
-        // Sleep para dar tempo às threads RT (NÃO bloqueia o sistema!)
-        k_msleep(10);
     }
 }
 
@@ -191,4 +186,9 @@ void gantt_start_logger_thread(void) {
                     LOGGER_THREAD_PRIORITY, 0, K_NO_WAIT);
     
     printk("GANTT LOGGER: Background thread launched\n");
+}
+
+void gantt_set_enabled(bool enable) {
+    logger_enabled = enable;
+    printk("GANTT: Logging %s\n", enable ? "ENABLED" : "DISABLED");
 }

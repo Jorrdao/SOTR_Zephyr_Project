@@ -135,17 +135,19 @@ void command_thread_entry(void *p1, void *p2, void *p3) {
         char c;
         while (uart_poll_in(uart_dev, &c) == 0) {
 
-            GANTT_LOG_START(gantt_id);
+            
 
             // ... (mesma lógica de buffer, backspace e deteção do $) ...
             if (c == '$') {
                 rx_buf[rx_pos] = '\0';
+                GANTT_LOG_START(gantt_id);
                 process_command(rx_buf);
+                GANTT_LOG_END(gantt_id);
                 rx_pos = 0; 
             } else if (rx_pos < CMD_BUF_SIZE - 1) {
                 rx_buf[rx_pos++] = c;
             }
-            GANTT_LOG_END(gantt_id);
+            
         }
 
         
