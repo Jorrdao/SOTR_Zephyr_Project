@@ -9,6 +9,7 @@
 #include "input_thread.h"  
 #include "siggen_thread.h"  
 #include "command_thread.h" 
+#include "gantt_logger.h"
 
 // --- Definições para a thread de SigGen (Prioridade ALTA) ---
 K_THREAD_STACK_DEFINE(siggen_thread_stack, SIGGEN_THREAD_STACK_SIZE);
@@ -30,7 +31,10 @@ static struct k_thread output_thread_data;
 void main(void) {
     printk("\n--- AWG System: Real-Time Orchestration ---\n");
     // TODO: Chame a função de inicialização do RTDB aqui, se for externa (e.g., rtdb_init()).
-
+    if(gantt_logger_init() != 0) {
+        printk("Gantt Logger initialization failed!\n");
+        return;
+    } 
     // 1. T_SigGen: Geração de Sinal (Prioridade ALTA: Prio 2)
     k_thread_create(&siggen_thread_data, siggen_thread_stack,
                     K_THREAD_STACK_SIZEOF(siggen_thread_stack),
@@ -65,7 +69,7 @@ void main(void) {
                     NULL, NULL, NULL,
                     OUTPUT_THREAD_PRIORITY, 0, K_NO_WAIT);
     printk("T_OutputUpdate Launched (Prio: %d)\n", OUTPUT_THREAD_PRIORITY);
-
+    gantt_start_logger_thread();
 
     printk("RTOS system initialization complete.\n");
 }

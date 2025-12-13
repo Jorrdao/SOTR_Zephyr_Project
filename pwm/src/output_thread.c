@@ -2,7 +2,7 @@
 #include "rtdb.h"
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/sys/printk.h>
-
+#include "gantt_logger.h"
 
 #define LED_SQUARE_NODE   DT_ALIAS(ledsquare)   // Era o led0/led1
 #define LED_TRIANGLE_NODE DT_ALIAS(ledtriangle) // Era o led1/led2
@@ -15,6 +15,7 @@ static const struct gpio_dt_spec led_sin_spec = GPIO_DT_SPEC_GET(LED_SINE_NODE, 
 static const struct gpio_dt_spec led_act_spec = GPIO_DT_SPEC_GET(LED_ACTIVE_NODE, gpios);
 
 void output_thread_entry(void *p1, void *p2, void *p3) {
+    uint8_t gantt_id = gantt_register_thread("T_Output");
     // Validação de segurança
     if (!device_is_ready(led_sq_spec.port) || !device_is_ready(led_tri_spec.port) ||
         !device_is_ready(led_sin_spec.port) || !device_is_ready(led_act_spec.port)) {
@@ -29,6 +30,7 @@ void output_thread_entry(void *p1, void *p2, void *p3) {
     gpio_pin_configure_dt(&led_act_spec, GPIO_OUTPUT_INACTIVE);
 
     while (1) {
+        GANTT_LOG_START(gantt_id);
         // Obter cópia segura do estado
         rtdb_state_t state = rtdb_get_state_copy();
 
@@ -58,7 +60,7 @@ void output_thread_entry(void *p1, void *p2, void *p3) {
         // Debugging Output
         //printk("[%u] OUTPUT (Prio 10): A atualizar LEDs...\n", k_uptime_get_32());
         k_msleep(500);
-
+        GANTT_LOG_END(gantt_id);
         // Frequência de atualização de 10Hz é suficiente para UI.
         // 1000ms (1s) é demasiado lento, o utilizador sente lag ao carregar no botão.
         k_msleep(100); 

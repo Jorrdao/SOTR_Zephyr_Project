@@ -15,4 +15,5 @@ target_sources(app PRIVATE
     src/input_thread.c
     src/siggen_thread.c
     src/command_thread.c
+    src/gantt_logger.c
 )

@@ -2,6 +2,7 @@
 #include "rtdb.h"
 #include <zephyr/drivers/pwm.h>
 #include <zephyr/sys/printk.h>
+#include "gantt_logger.h"
 
 /* --- CONFIGURAÇÕES DE HARDWARE --- */
 #define PWM_NODE DT_ALIAS(signal_pwm)
@@ -82,6 +83,7 @@ void sample_timer_handler(struct k_timer *dummy) {
 
 /* --- THREAD PRINCIPAL --- */
 void siggen_thread_entry(void *p1, void *p2, void *p3) {
+    uint8_t gantt_id = gantt_register_thread("T_SigGen");
     if (!pwm_is_ready_dt(&pwm_dev)) {
         printk("SIGGEN FATAL: PWM device not ready!\n");
         return;
@@ -95,6 +97,7 @@ void siggen_thread_entry(void *p1, void *p2, void *p3) {
     bool last_active = false;
 
     while (1) {
+        GANTT_LOG_START(gantt_id);
         // Ler RTDB
         rtdb_state_t state = rtdb_get_state_copy();
 
@@ -122,7 +125,7 @@ void siggen_thread_entry(void *p1, void *p2, void *p3) {
 
         last_freq = state.frequency_hz;
         last_active = state.output_active;
-
+        GANTT_LOG_END(gantt_id);
         k_msleep(100);
     }
 }

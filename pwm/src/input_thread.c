@@ -4,7 +4,7 @@
 #include "rtdb.h"
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/sys/printk.h>
-
+#include "gantt_logger.h" 
 // Definição do nó do BUT1
 #define BUT1_NODE DT_ALIAS(but1) 
 static const struct gpio_dt_spec but1_spec = GPIO_DT_SPEC_GET(BUT1_NODE, gpios);
@@ -50,7 +50,7 @@ static void handle_wave_type_toggle(void)
 
 
 void input_thread_entry(void *p1, void *p2, void *p3) {
-
+    uint8_t gantt_id = gantt_register_thread("T_Input");
     // 1. Configuração do Pino (Verificação e Modo)
     if (!device_is_ready(but1_spec.port)) {
         printk("Erro: BUT1 device not ready.\n");
@@ -87,14 +87,14 @@ void input_thread_entry(void *p1, void *p2, void *p3) {
     while (1) {
         // Espera de forma síncrona pelo sinal do semáforo, liberando a CPU para outras threads.
         k_sem_take(&but1_sem, K_FOREVER);
-
+        GANTT_LOG_START(gantt_id);
         // Debugging Output
         //printk("[%u] INPUT  (Prio 5): Botão detetado. A processar...\n", k_uptime_get_32());
         
         
         // Processar o evento fora do contexto de interrupção (ISR)
         handle_wave_type_toggle();
-        
+        GANTT_LOG_START(gantt_id);
         // TODO: Adicionar lógica de anti-debounce (k_msleep curto ou timer) se necessário.
     }
 }
