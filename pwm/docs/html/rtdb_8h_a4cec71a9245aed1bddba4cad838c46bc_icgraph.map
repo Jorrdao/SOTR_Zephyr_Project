@@ -1,0 +1,8 @@
+<map id="rtdb_set_amplitude" name="rtdb_set_amplitude">
+<area shape="rect" id="node1" title="Sets the signal amplitude." alt="" coords="525,31,673,57"/>
+<area shape="rect" id="node2" href="$input__thread_8c.html#a7a4ae636121b43febe55603fca62c956" title=" " alt="" coords="354,5,457,32"/>
+<area shape="rect" id="node5" href="$command__thread_8c.html#a0f3b1e1abc393f2d98d495f4593ef2ff" title=" " alt="" coords="333,56,477,83"/>
+<area shape="rect" id="node3" href="$input__thread_8c.html#ade1dff01707e76f7dc1b91150379d2e6" title="Entry point for the Input Processing Thread." alt="" coords="124,5,269,32"/>
+<area shape="rect" id="node4" href="$main_8c.html#a6288eba0f8e8ad3ab1544ad731eb7667" title="Main Application Entry Point." alt="" coords="5,31,60,57"/>
+<area shape="rect" id="node6" href="$command__thread_8c.html#af3090a5e77f5079df317164dd19966d0" title="Command Parser Thread Entry Point." alt="" coords="108,56,285,83"/>
+</map>

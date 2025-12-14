@@ -1,0 +1,12 @@
+<map id="src/main.c" name="src/main.c">
+<area shape="rect" id="node1" title="System Entry Point and Orchestrator." alt="" coords="416,5,505,32"/>
+<area shape="rect" id="node2" title=" " alt="" coords="255,155,378,181"/>
+<area shape="rect" id="node3" title=" " alt="" coords="718,80,865,107"/>
+<area shape="rect" id="node4" href="$rtdb_8h.html" title="Real&#45;Time Database (RTDB) Module." alt="" coords="495,80,555,107"/>
+<area shape="rect" id="node6" href="$output__thread_8h.html" title="Visual Feedback (LED) Interface." alt="" coords="889,80,1014,107"/>
+<area shape="rect" id="node7" href="$input__thread_8h.html" title="Human&#45;Machine Interface (HMI) Handling Module." alt="" coords="32,80,148,107"/>
+<area shape="rect" id="node8" href="$siggen__thread_8h.html" title="Signal Generator Thread Interface." alt="" coords="172,80,299,107"/>
+<area shape="rect" id="node9" href="$command__thread_8h.html" title="UART Command Processing Interface." alt="" coords="323,80,471,107"/>
+<area shape="rect" id="node10" href="$gantt__logger_8h.html" title="Low&#45;Overhead Lock&#45;Free Logger for Gantt Chart generation." alt="" coords="579,80,694,107"/>
+<area shape="rect" id="node5" title=" " alt="" coords="539,155,622,181"/>
+</map>

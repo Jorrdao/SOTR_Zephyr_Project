@@ -1,0 +1,8 @@
+<map id="gantt_register_thread" name="gantt_register_thread">
+<area shape="rect" id="node1" title="Registers a thread for logging." alt="" coords="333,81,496,108"/>
+<area shape="rect" id="node2" href="$command__thread_8c.html#af3090a5e77f5079df317164dd19966d0" title="Command Parser Thread Entry Point." alt="" coords="108,5,285,32"/>
+<area shape="rect" id="node4" href="$input__thread_8c.html#ade1dff01707e76f7dc1b91150379d2e6" title="Entry point for the Input Processing Thread." alt="" coords="124,56,269,83"/>
+<area shape="rect" id="node5" href="$output__thread_8c.html#aa0507a46d481871c38a22bbcf90b1b38" title="Output Thread Entry Point." alt="" coords="119,107,274,133"/>
+<area shape="rect" id="node6" href="$siggen__thread_8c.html#a975e5c3f935876e2876b948e13501002" title="Signal Generator Thread Entry Point." alt="" coords="119,157,274,184"/>
+<area shape="rect" id="node3" href="$main_8c.html#a6288eba0f8e8ad3ab1544ad731eb7667" title="Main Application Entry Point." alt="" coords="5,81,60,108"/>
+</map>

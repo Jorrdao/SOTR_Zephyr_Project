@@ -1,0 +1,13 @@
+<map id="rtdb_get_state_copy" name="rtdb_get_state_copy">
+<area shape="rect" id="node1" title="Gets a consistent copy of the full system state." alt="" coords="525,157,680,184"/>
+<area shape="rect" id="node2" href="$input__thread_8c.html#a8c19a5521d09bfe93a251ee110954d79" title=" " alt="" coords="354,5,457,32"/>
+<area shape="rect" id="node5" href="$input__thread_8c.html#a9589b28d797dc4e7f26824a2cd1561b2" title=" " alt="" coords="354,56,457,83"/>
+<area shape="rect" id="node6" href="$input__thread_8c.html#a29b23565e071f6d01706bbe9c0805dba" title=" " alt="" coords="354,107,457,133"/>
+<area shape="rect" id="node7" href="$input__thread_8c.html#a7a4ae636121b43febe55603fca62c956" title=" " alt="" coords="354,157,457,184"/>
+<area shape="rect" id="node8" href="$output__thread_8c.html#aa0507a46d481871c38a22bbcf90b1b38" title="Output Thread Entry Point." alt="" coords="119,208,274,235"/>
+<area shape="rect" id="node9" href="$command__thread_8c.html#a0f3b1e1abc393f2d98d495f4593ef2ff" title=" " alt="" coords="333,259,477,285"/>
+<area shape="rect" id="node11" href="$siggen__thread_8c.html#a975e5c3f935876e2876b948e13501002" title="Signal Generator Thread Entry Point." alt="" coords="119,309,274,336"/>
+<area shape="rect" id="node3" href="$input__thread_8c.html#ade1dff01707e76f7dc1b91150379d2e6" title="Entry point for the Input Processing Thread." alt="" coords="124,107,269,133"/>
+<area shape="rect" id="node4" href="$main_8c.html#a6288eba0f8e8ad3ab1544ad731eb7667" title="Main Application Entry Point." alt="" coords="5,233,60,260"/>
+<area shape="rect" id="node10" href="$command__thread_8c.html#af3090a5e77f5079df317164dd19966d0" title="Command Parser Thread Entry Point." alt="" coords="108,259,285,285"/>
+</map>

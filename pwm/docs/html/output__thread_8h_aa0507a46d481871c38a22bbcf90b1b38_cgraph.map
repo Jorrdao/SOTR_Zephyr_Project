@@ -1,0 +1,5 @@
+<map id="output_thread_entry" name="output_thread_entry">
+<area shape="rect" id="node1" title="Output Thread Entry Point." alt="" coords="5,31,160,57"/>
+<area shape="rect" id="node2" href="$gantt__logger_8c.html#a80eccf5aa3ce4dce8c1cf69d60b29551" title="Registers a thread for logging." alt="" coords="208,5,371,32"/>
+<area shape="rect" id="node3" href="$rtdb_8c.html#a1e2adc1af764150f2612f4acdd702182" title="Gets a consistent copy of the full system state." alt="" coords="212,56,367,83"/>
+</map>

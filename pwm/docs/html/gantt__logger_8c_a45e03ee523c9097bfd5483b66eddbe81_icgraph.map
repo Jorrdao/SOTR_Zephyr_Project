@@ -1,0 +1,6 @@
+<map id="send_uart_line" name="send_uart_line">
+<area shape="rect" id="node1" title=" " alt="" coords="499,13,616,39"/>
+<area shape="rect" id="node2" href="$gantt__logger_8c.html#aaf92480bcccdec3d0515430ab15c7b76" title=" " alt="" coords="297,13,451,39"/>
+<area shape="rect" id="node3" href="$gantt__logger_8c.html#a05753c367863dc9e536c6bdb8606b7dc" title="Starts the background worker thread." alt="" coords="108,5,249,47"/>
+<area shape="rect" id="node4" href="$main_8c.html#a6288eba0f8e8ad3ab1544ad731eb7667" title="Main Application Entry Point." alt="" coords="5,13,60,39"/>
+</map>

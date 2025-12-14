@@ -4,36 +4,84 @@
 #include <zephyr/kernel.h>
 #include <stdbool.h>
 
-// Definição dos tipos de onda
+/**
+ * @file rtdb.h
+ * @brief Real-Time Database (RTDB) Module.
+ * * This module acts as a thread-safe shared memory region.
+ * It uses Mutexes to protect read/write operations on the system state,
+ * preventing Race Conditions between the High-Priority SigGen thread
+ * and the Lower-Priority Command/Input threads.
+ */
+
+/* ============================================================================
+ * TIPOS DE DADOS
+ * ============================================================================
+ */
+
+/**
+ * @brief Supported Waveform Types.
+ */
 typedef enum {
-    WAVE_SQUARE,
-    WAVE_TRIANGLE,
-    WAVE_SINE
+    WAVE_SQUARE = 0,    /**< Square wave (Digital Pulse) */
+    WAVE_TRIANGLE = 1,  /**< Triangle wave (Linear Ramp) */
+    WAVE_SINE = 2       /**< Sine wave (Look-Up Table based) */
 } wave_type_t;
 
-// Estrutura do Real-Time Database (RTDB)
+/**
+ * @brief System State Structure.
+ * Holds the current configuration of the waveform generator.
+ */
 typedef struct {
-    wave_type_t wave_type;
-    float amplitude_v;
-    int frequency_hz;
-    bool output_active; 
+    int frequency_hz;      /**< Frequency in Hertz (10-100Hz) */
+    float amplitude_v;     /**< Amplitude in Volts (0.0-2.5V) */
+    wave_type_t wave_type; /**< Current waveform type */
+    bool output_active;    /**< Master Output Switch (ON/OFF) */
 } rtdb_state_t;
 
-// Protótipo do Mutex (para uso externo)
-extern struct k_mutex rtdb_mutex;
+/* ============================================================================
+ * API PÚBLICA (Thread-Safe)
+ * ============================================================================
+ */
 
-// --- Funções de Acesso (API) ---
+/**
+ * @brief Initializes the Real-Time Database.
+ * Must be called before any thread tries to access the state.
+ * Initializes the internal Mutex.
+ */
+void rtdb_init(void);
 
-// Getters
+/**
+ * @brief Sets the signal frequency.
+ * * Thread-safe setter protected by k_mutex.
+ * * @param freq Frequency in Hz (Range: 10 to 100).
+ */
+void rtdb_set_frequency(int freq);
+
+/**
+ * @brief Sets the signal amplitude.
+ * * Thread-safe setter protected by k_mutex.
+ * * @param amp Amplitude in Volts (Range: 0.0 to 2.5).
+ */
+void rtdb_set_amplitude(float amp);
+
+/**
+ * @brief Sets the waveform type.
+ * * @param type One of WAVE_SQUARE, WAVE_TRIANGLE, WAVE_SINE.
+ */
+void rtdb_set_wave_type(wave_type_t type);
+
+/**
+ * @brief Toggles the main output.
+ * * @param active true to enable PWM output, false to disable (0V).
+ */
+void rtdb_set_output_active(bool active);
+
+/**
+ * @brief Gets a consistent copy of the full system state.
+ * * This function locks the mutex, copies the struct, and unlocks.
+ * It ensures that the consumer (e.g., SigGen) never reads a half-updated state.
+ * * @return A copy of the current rtdb_state_t.
+ */
 rtdb_state_t rtdb_get_state_copy(void);
-
-// Setters (Input Thread)
-void rtdb_set_wave_type(wave_type_t new_type);
-void rtdb_toggle_output_status(void);
-
-// Setters (Command Thread / UART)
-void rtdb_set_frequency(int freq_hz);      // <--- ADICIONADO
-void rtdb_set_output_active(bool active);  // <--- ADICIONADO
-void rtdb_set_amplitude(float amp_v);      // <--- Vais precisar disto para o comando #SA
 
 #endif // RTDB_H

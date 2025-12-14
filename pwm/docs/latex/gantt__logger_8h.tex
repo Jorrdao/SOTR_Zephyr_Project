@@ -1,0 +1,254 @@
+\hypertarget{gantt__logger_8h}{}\doxysection{src/gantt\+\_\+logger.h File Reference}
+\label{gantt__logger_8h}\index{src/gantt\_logger.h@{src/gantt\_logger.h}}
+
+
+Low-\/\+Overhead Lock-\/\+Free Logger for Gantt Chart generation.  
+
+
+{\ttfamily \#include $<$zephyr/kernel.\+h$>$}\newline
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+Include dependency graph for gantt\+\_\+logger.\+h\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=252pt]{gantt__logger_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{gantt__logger_8h__dep__incl}
+\end{center}
+\end{figure}
+\doxysubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structgantt__event__t}{gantt\+\_\+event\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Event Structure (Optimized for memory alignment). Size\+: 8 bytes per event. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{gantt__logger_8h_a40ed69298f95ebed04fc5455b412b8cc}{GANTT\+\_\+\+LOG\+\_\+\+BUFFER\+\_\+\+SIZE}}~512
+\item 
+\#define \mbox{\hyperlink{gantt__logger_8h_a5e78062118632cd25dde4b2dfe11dc1b}{GANTT\+\_\+\+MAX\+\_\+\+THREAD\+\_\+\+NAME}}~16
+\item 
+\#define \mbox{\hyperlink{gantt__logger_8h_ad302741eb773345b5b6a5fa6191c65bb}{GANTT\+\_\+\+LOG\+\_\+\+START}}(id)~\mbox{\hyperlink{gantt__logger_8h_ababff07280032cfd7cca14499aadf803}{gantt\+\_\+log\+\_\+event}}(id, \mbox{\hyperlink{gantt__logger_8h_afe614b5b13e2bcd1fc659b88fbdd0ae9a288c6edb008528a553fcc3e92a26bb66}{GANTT\+\_\+\+EVENT\+\_\+\+START}})
+\item 
+\#define \mbox{\hyperlink{gantt__logger_8h_ab7479c0821ce4cb211cf5c79d1e2ed50}{GANTT\+\_\+\+LOG\+\_\+\+END}}(id)~\mbox{\hyperlink{gantt__logger_8h_ababff07280032cfd7cca14499aadf803}{gantt\+\_\+log\+\_\+event}}(id, \mbox{\hyperlink{gantt__logger_8h_afe614b5b13e2bcd1fc659b88fbdd0ae9a72c7d732deeb7342d5370b526f662ada}{GANTT\+\_\+\+EVENT\+\_\+\+END}})
+\end{DoxyCompactItemize}
+\doxysubsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{gantt__logger_8h_afe614b5b13e2bcd1fc659b88fbdd0ae9}{gantt\+\_\+event\+\_\+type\+\_\+t}} \{ \mbox{\hyperlink{gantt__logger_8h_afe614b5b13e2bcd1fc659b88fbdd0ae9a288c6edb008528a553fcc3e92a26bb66}{GANTT\+\_\+\+EVENT\+\_\+\+START}} = 0
+, \mbox{\hyperlink{gantt__logger_8h_afe614b5b13e2bcd1fc659b88fbdd0ae9a72c7d732deeb7342d5370b526f662ada}{GANTT\+\_\+\+EVENT\+\_\+\+END}} = 1
+ \}
+\begin{DoxyCompactList}\small\item\em Event Types for Gantt Chart. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{gantt__logger_8h_a575da9ac509fbd2d4665472d6eb768b2}{gantt\+\_\+logger\+\_\+init}} (void)
+\begin{DoxyCompactList}\small\item\em Initializes the Logger subsystem. Resets ring buffer indices and registers. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{gantt__logger_8h_a80eccf5aa3ce4dce8c1cf69d60b29551}{gantt\+\_\+register\+\_\+thread}} (const char $\ast$thread\+\_\+name)
+\begin{DoxyCompactList}\small\item\em Registers a thread for logging. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{gantt__logger_8h_ababff07280032cfd7cca14499aadf803}{gantt\+\_\+log\+\_\+event}} (uint8\+\_\+t thread\+\_\+id, \mbox{\hyperlink{gantt__logger_8h_afe614b5b13e2bcd1fc659b88fbdd0ae9}{gantt\+\_\+event\+\_\+type\+\_\+t}} event\+\_\+type)
+\begin{DoxyCompactList}\small\item\em Logs a thread event (Critical Path). \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{gantt__logger_8h_a7db07d51af075d355e92e3f184f488aa}{gantt\+\_\+set\+\_\+enabled}} (bool enable)
+\begin{DoxyCompactList}\small\item\em Controls the Logging Output. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{gantt__logger_8h_a05753c367863dc9e536c6bdb8606b7dc}{gantt\+\_\+start\+\_\+logger\+\_\+thread}} (void)
+\begin{DoxyCompactList}\small\item\em Starts the background worker thread. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Low-\/\+Overhead Lock-\/\+Free Logger for Gantt Chart generation. 
+
+
+\begin{DoxyItemize}
+\item This module records thread execution events (START/\+END) into a circular buffer (Ring Buffer) using atomic operations.
+\item \begin{DoxyNote}{Note}
+This implementation is \char`\"{}\+Lock-\/\+Free\char`\"{} to ensure that High-\/\+Priority Real-\/\+Time threads (like Sig\+Gen) are NEVER blocked by logging operations. 
+\end{DoxyNote}
+
+\end{DoxyItemize}
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\Hypertarget{gantt__logger_8h_a40ed69298f95ebed04fc5455b412b8cc}\label{gantt__logger_8h_a40ed69298f95ebed04fc5455b412b8cc}} 
+\index{gantt\_logger.h@{gantt\_logger.h}!GANTT\_LOG\_BUFFER\_SIZE@{GANTT\_LOG\_BUFFER\_SIZE}}
+\index{GANTT\_LOG\_BUFFER\_SIZE@{GANTT\_LOG\_BUFFER\_SIZE}!gantt\_logger.h@{gantt\_logger.h}}
+\doxysubsubsection{\texorpdfstring{GANTT\_LOG\_BUFFER\_SIZE}{GANTT\_LOG\_BUFFER\_SIZE}}
+{\footnotesize\ttfamily \#define GANTT\+\_\+\+LOG\+\_\+\+BUFFER\+\_\+\+SIZE~512}
+
+Buffer size (Power of 2 for optimization) \mbox{\Hypertarget{gantt__logger_8h_ab7479c0821ce4cb211cf5c79d1e2ed50}\label{gantt__logger_8h_ab7479c0821ce4cb211cf5c79d1e2ed50}} 
+\index{gantt\_logger.h@{gantt\_logger.h}!GANTT\_LOG\_END@{GANTT\_LOG\_END}}
+\index{GANTT\_LOG\_END@{GANTT\_LOG\_END}!gantt\_logger.h@{gantt\_logger.h}}
+\doxysubsubsection{\texorpdfstring{GANTT\_LOG\_END}{GANTT\_LOG\_END}}
+{\footnotesize\ttfamily \#define GANTT\+\_\+\+LOG\+\_\+\+END(\begin{DoxyParamCaption}\item[{}]{id }\end{DoxyParamCaption})~\mbox{\hyperlink{gantt__logger_8h_ababff07280032cfd7cca14499aadf803}{gantt\+\_\+log\+\_\+event}}(id, \mbox{\hyperlink{gantt__logger_8h_afe614b5b13e2bcd1fc659b88fbdd0ae9a72c7d732deeb7342d5370b526f662ada}{GANTT\+\_\+\+EVENT\+\_\+\+END}})}
+
+\mbox{\Hypertarget{gantt__logger_8h_ad302741eb773345b5b6a5fa6191c65bb}\label{gantt__logger_8h_ad302741eb773345b5b6a5fa6191c65bb}} 
+\index{gantt\_logger.h@{gantt\_logger.h}!GANTT\_LOG\_START@{GANTT\_LOG\_START}}
+\index{GANTT\_LOG\_START@{GANTT\_LOG\_START}!gantt\_logger.h@{gantt\_logger.h}}
+\doxysubsubsection{\texorpdfstring{GANTT\_LOG\_START}{GANTT\_LOG\_START}}
+{\footnotesize\ttfamily \#define GANTT\+\_\+\+LOG\+\_\+\+START(\begin{DoxyParamCaption}\item[{}]{id }\end{DoxyParamCaption})~\mbox{\hyperlink{gantt__logger_8h_ababff07280032cfd7cca14499aadf803}{gantt\+\_\+log\+\_\+event}}(id, \mbox{\hyperlink{gantt__logger_8h_afe614b5b13e2bcd1fc659b88fbdd0ae9a288c6edb008528a553fcc3e92a26bb66}{GANTT\+\_\+\+EVENT\+\_\+\+START}})}
+
+\mbox{\Hypertarget{gantt__logger_8h_a5e78062118632cd25dde4b2dfe11dc1b}\label{gantt__logger_8h_a5e78062118632cd25dde4b2dfe11dc1b}} 
+\index{gantt\_logger.h@{gantt\_logger.h}!GANTT\_MAX\_THREAD\_NAME@{GANTT\_MAX\_THREAD\_NAME}}
+\index{GANTT\_MAX\_THREAD\_NAME@{GANTT\_MAX\_THREAD\_NAME}!gantt\_logger.h@{gantt\_logger.h}}
+\doxysubsubsection{\texorpdfstring{GANTT\_MAX\_THREAD\_NAME}{GANTT\_MAX\_THREAD\_NAME}}
+{\footnotesize\ttfamily \#define GANTT\+\_\+\+MAX\+\_\+\+THREAD\+\_\+\+NAME~16}
+
+Max chars for thread name 
+
+\doxysubsection{Enumeration Type Documentation}
+\mbox{\Hypertarget{gantt__logger_8h_afe614b5b13e2bcd1fc659b88fbdd0ae9}\label{gantt__logger_8h_afe614b5b13e2bcd1fc659b88fbdd0ae9}} 
+\index{gantt\_logger.h@{gantt\_logger.h}!gantt\_event\_type\_t@{gantt\_event\_type\_t}}
+\index{gantt\_event\_type\_t@{gantt\_event\_type\_t}!gantt\_logger.h@{gantt\_logger.h}}
+\doxysubsubsection{\texorpdfstring{gantt\_event\_type\_t}{gantt\_event\_type\_t}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{gantt__logger_8h_afe614b5b13e2bcd1fc659b88fbdd0ae9}{gantt\+\_\+event\+\_\+type\+\_\+t}}}
+
+
+
+Event Types for Gantt Chart. 
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GANTT\_EVENT\_START@{GANTT\_EVENT\_START}!gantt\_logger.h@{gantt\_logger.h}}\index{gantt\_logger.h@{gantt\_logger.h}!GANTT\_EVENT\_START@{GANTT\_EVENT\_START}}}\mbox{\Hypertarget{gantt__logger_8h_afe614b5b13e2bcd1fc659b88fbdd0ae9a288c6edb008528a553fcc3e92a26bb66}\label{gantt__logger_8h_afe614b5b13e2bcd1fc659b88fbdd0ae9a288c6edb008528a553fcc3e92a26bb66}} 
+GANTT\+\_\+\+EVENT\+\_\+\+START&Thread started processing (CPU busy) \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GANTT\_EVENT\_END@{GANTT\_EVENT\_END}!gantt\_logger.h@{gantt\_logger.h}}\index{gantt\_logger.h@{gantt\_logger.h}!GANTT\_EVENT\_END@{GANTT\_EVENT\_END}}}\mbox{\Hypertarget{gantt__logger_8h_afe614b5b13e2bcd1fc659b88fbdd0ae9a72c7d732deeb7342d5370b526f662ada}\label{gantt__logger_8h_afe614b5b13e2bcd1fc659b88fbdd0ae9a72c7d732deeb7342d5370b526f662ada}} 
+GANTT\+\_\+\+EVENT\+\_\+\+END&Thread finished processing (Yield/\+Sleep) \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{gantt__logger_8h_ababff07280032cfd7cca14499aadf803}\label{gantt__logger_8h_ababff07280032cfd7cca14499aadf803}} 
+\index{gantt\_logger.h@{gantt\_logger.h}!gantt\_log\_event@{gantt\_log\_event}}
+\index{gantt\_log\_event@{gantt\_log\_event}!gantt\_logger.h@{gantt\_logger.h}}
+\doxysubsubsection{\texorpdfstring{gantt\_log\_event()}{gantt\_log\_event()}}
+{\footnotesize\ttfamily void gantt\+\_\+log\+\_\+event (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{thread\+\_\+id,  }\item[{\mbox{\hyperlink{gantt__logger_8h_afe614b5b13e2bcd1fc659b88fbdd0ae9}{gantt\+\_\+event\+\_\+type\+\_\+t}}}]{event\+\_\+type }\end{DoxyParamCaption})}
+
+
+
+Logs a thread event (Critical Path). 
+
+
+\begin{DoxyItemize}
+\item This function is LOCK-\/\+FREE and generic. It uses atomic\+\_\+inc to reserve space in the ring buffer. If the buffer is full, the event is silently dropped to preserve system timing.
+\item 
+\begin{DoxyParams}{Parameters}
+{\em thread\+\_\+id} & ID obtained from \mbox{\hyperlink{gantt__logger_8h_a80eccf5aa3ce4dce8c1cf69d60b29551}{gantt\+\_\+register\+\_\+thread()}}. \\
+\hline
+{\em event\+\_\+type} & GANTT\+\_\+\+EVENT\+\_\+\+START or GANTT\+\_\+\+EVENT\+\_\+\+END. \\
+\hline
+\end{DoxyParams}
+
+\end{DoxyItemize}\mbox{\Hypertarget{gantt__logger_8h_a575da9ac509fbd2d4665472d6eb768b2}\label{gantt__logger_8h_a575da9ac509fbd2d4665472d6eb768b2}} 
+\index{gantt\_logger.h@{gantt\_logger.h}!gantt\_logger\_init@{gantt\_logger\_init}}
+\index{gantt\_logger\_init@{gantt\_logger\_init}!gantt\_logger.h@{gantt\_logger.h}}
+\doxysubsubsection{\texorpdfstring{gantt\_logger\_init()}{gantt\_logger\_init()}}
+{\footnotesize\ttfamily int gantt\+\_\+logger\+\_\+init (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+
+
+Initializes the Logger subsystem. Resets ring buffer indices and registers. 
+
+\begin{DoxyReturn}{Returns}
+0 on success. 
+\end{DoxyReturn}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=256pt]{gantt__logger_8h_a575da9ac509fbd2d4665472d6eb768b2_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{gantt__logger_8h_a80eccf5aa3ce4dce8c1cf69d60b29551}\label{gantt__logger_8h_a80eccf5aa3ce4dce8c1cf69d60b29551}} 
+\index{gantt\_logger.h@{gantt\_logger.h}!gantt\_register\_thread@{gantt\_register\_thread}}
+\index{gantt\_register\_thread@{gantt\_register\_thread}!gantt\_logger.h@{gantt\_logger.h}}
+\doxysubsubsection{\texorpdfstring{gantt\_register\_thread()}{gantt\_register\_thread()}}
+{\footnotesize\ttfamily uint8\+\_\+t gantt\+\_\+register\+\_\+thread (\begin{DoxyParamCaption}\item[{const char $\ast$}]{thread\+\_\+name }\end{DoxyParamCaption})}
+
+
+
+Registers a thread for logging. 
+
+
+\begin{DoxyItemize}
+\item Assigns a unique ID to the thread name for efficient logging.
+\item 
+\begin{DoxyParams}{Parameters}
+{\em thread\+\_\+name} & Human-\/readable name (e.\+g., \char`\"{}\+T\+\_\+\+Sig\+Gen\char`\"{}). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Assigned Thread ID (uint8\+\_\+t). 
+\end{DoxyReturn}
+
+\end{DoxyItemize}Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{gantt__logger_8h_a80eccf5aa3ce4dce8c1cf69d60b29551_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{gantt__logger_8h_a7db07d51af075d355e92e3f184f488aa}\label{gantt__logger_8h_a7db07d51af075d355e92e3f184f488aa}} 
+\index{gantt\_logger.h@{gantt\_logger.h}!gantt\_set\_enabled@{gantt\_set\_enabled}}
+\index{gantt\_set\_enabled@{gantt\_set\_enabled}!gantt\_logger.h@{gantt\_logger.h}}
+\doxysubsubsection{\texorpdfstring{gantt\_set\_enabled()}{gantt\_set\_enabled()}}
+{\footnotesize\ttfamily void gantt\+\_\+set\+\_\+enabled (\begin{DoxyParamCaption}\item[{bool}]{enable }\end{DoxyParamCaption})}
+
+
+
+Controls the Logging Output. 
+
+
+\begin{DoxyItemize}
+\item Used to enable/disable the stream of CSV data to UART.
+\item 
+\begin{DoxyParams}{Parameters}
+{\em enable} & true to start sending data, false to silence UART. \\
+\hline
+\end{DoxyParams}
+
+\end{DoxyItemize}Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{gantt__logger_8h_a7db07d51af075d355e92e3f184f488aa_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{gantt__logger_8h_a05753c367863dc9e536c6bdb8606b7dc}\label{gantt__logger_8h_a05753c367863dc9e536c6bdb8606b7dc}} 
+\index{gantt\_logger.h@{gantt\_logger.h}!gantt\_start\_logger\_thread@{gantt\_start\_logger\_thread}}
+\index{gantt\_start\_logger\_thread@{gantt\_start\_logger\_thread}!gantt\_logger.h@{gantt\_logger.h}}
+\doxysubsubsection{\texorpdfstring{gantt\_start\_logger\_thread()}{gantt\_start\_logger\_thread()}}
+{\footnotesize\ttfamily void gantt\+\_\+start\+\_\+logger\+\_\+thread (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+
+
+Starts the background worker thread. 
+
+
+\begin{DoxyItemize}
+\item This thread runs at Low Priority to offload data from the ring buffer to the UART interface without disturbing Real-\/\+Time tasks. 
+\end{DoxyItemize}Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{gantt__logger_8h_a05753c367863dc9e536c6bdb8606b7dc_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=263pt]{gantt__logger_8h_a05753c367863dc9e536c6bdb8606b7dc_icgraph}
+\end{center}
+\end{figure}

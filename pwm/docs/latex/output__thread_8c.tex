@@ -1,0 +1,128 @@
+\hypertarget{output__thread_8c}{}\doxysection{src/output\+\_\+thread.c File Reference}
+\label{output__thread_8c}\index{src/output\_thread.c@{src/output\_thread.c}}
+{\ttfamily \#include \char`\"{}output\+\_\+thread.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}rtdb.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$zephyr/drivers/gpio.\+h$>$}\newline
+{\ttfamily \#include $<$zephyr/sys/printk.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}gantt\+\_\+logger.\+h\char`\"{}}\newline
+Include dependency graph for output\+\_\+thread.\+c\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{output__thread_8c__incl}
+\end{center}
+\end{figure}
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{output__thread_8c_a4420dc8e1ab111744892b4a3bb8618ca}{LED\+\_\+\+SQUARE\+\_\+\+NODE}}~DT\+\_\+\+ALIAS(ledsquare)
+\item 
+\#define \mbox{\hyperlink{output__thread_8c_a2b9c3e4db2c64c2d18f0f26beee78b95}{LED\+\_\+\+TRIANGLE\+\_\+\+NODE}}~DT\+\_\+\+ALIAS(ledtriangle)
+\item 
+\#define \mbox{\hyperlink{output__thread_8c_a8a5bd6ecac3a487d53b230e384cc8ecd}{LED\+\_\+\+SINE\+\_\+\+NODE}}~DT\+\_\+\+ALIAS(ledsine)
+\item 
+\#define \mbox{\hyperlink{output__thread_8c_a8c7c454c3339f7a2b2e880689df4043f}{LED\+\_\+\+ACTIVE\+\_\+\+NODE}}~DT\+\_\+\+ALIAS(ledactive)
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{output__thread_8c_aa0507a46d481871c38a22bbcf90b1b38}{output\+\_\+thread\+\_\+entry}} (void $\ast$p1, void $\ast$p2, void $\ast$p3)
+\begin{DoxyCompactList}\small\item\em Output Thread Entry Point. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+static const struct gpio\+\_\+dt\+\_\+spec \mbox{\hyperlink{output__thread_8c_a559dc93551f5726acf739278d9289500}{led\+\_\+sq\+\_\+spec}} = GPIO\+\_\+\+DT\+\_\+\+SPEC\+\_\+\+GET(\mbox{\hyperlink{output__thread_8c_a4420dc8e1ab111744892b4a3bb8618ca}{LED\+\_\+\+SQUARE\+\_\+\+NODE}}, gpios)
+\item 
+static const struct gpio\+\_\+dt\+\_\+spec \mbox{\hyperlink{output__thread_8c_a9c4a32abfa2eacb8dcf514e62200f003}{led\+\_\+tri\+\_\+spec}} = GPIO\+\_\+\+DT\+\_\+\+SPEC\+\_\+\+GET(\mbox{\hyperlink{output__thread_8c_a2b9c3e4db2c64c2d18f0f26beee78b95}{LED\+\_\+\+TRIANGLE\+\_\+\+NODE}}, gpios)
+\item 
+static const struct gpio\+\_\+dt\+\_\+spec \mbox{\hyperlink{output__thread_8c_ad0e79c0bbb8c991bbb2fd9b8570b573f}{led\+\_\+sin\+\_\+spec}} = GPIO\+\_\+\+DT\+\_\+\+SPEC\+\_\+\+GET(\mbox{\hyperlink{output__thread_8c_a8a5bd6ecac3a487d53b230e384cc8ecd}{LED\+\_\+\+SINE\+\_\+\+NODE}}, gpios)
+\item 
+static const struct gpio\+\_\+dt\+\_\+spec \mbox{\hyperlink{output__thread_8c_a42736cc182ce0fbfbedc2d7e88b724c5}{led\+\_\+act\+\_\+spec}} = GPIO\+\_\+\+DT\+\_\+\+SPEC\+\_\+\+GET(\mbox{\hyperlink{output__thread_8c_a8c7c454c3339f7a2b2e880689df4043f}{LED\+\_\+\+ACTIVE\+\_\+\+NODE}}, gpios)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\Hypertarget{output__thread_8c_a8c7c454c3339f7a2b2e880689df4043f}\label{output__thread_8c_a8c7c454c3339f7a2b2e880689df4043f}} 
+\index{output\_thread.c@{output\_thread.c}!LED\_ACTIVE\_NODE@{LED\_ACTIVE\_NODE}}
+\index{LED\_ACTIVE\_NODE@{LED\_ACTIVE\_NODE}!output\_thread.c@{output\_thread.c}}
+\doxysubsubsection{\texorpdfstring{LED\_ACTIVE\_NODE}{LED\_ACTIVE\_NODE}}
+{\footnotesize\ttfamily \#define LED\+\_\+\+ACTIVE\+\_\+\+NODE~DT\+\_\+\+ALIAS(ledactive)}
+
+\mbox{\Hypertarget{output__thread_8c_a8a5bd6ecac3a487d53b230e384cc8ecd}\label{output__thread_8c_a8a5bd6ecac3a487d53b230e384cc8ecd}} 
+\index{output\_thread.c@{output\_thread.c}!LED\_SINE\_NODE@{LED\_SINE\_NODE}}
+\index{LED\_SINE\_NODE@{LED\_SINE\_NODE}!output\_thread.c@{output\_thread.c}}
+\doxysubsubsection{\texorpdfstring{LED\_SINE\_NODE}{LED\_SINE\_NODE}}
+{\footnotesize\ttfamily \#define LED\+\_\+\+SINE\+\_\+\+NODE~DT\+\_\+\+ALIAS(ledsine)}
+
+\mbox{\Hypertarget{output__thread_8c_a4420dc8e1ab111744892b4a3bb8618ca}\label{output__thread_8c_a4420dc8e1ab111744892b4a3bb8618ca}} 
+\index{output\_thread.c@{output\_thread.c}!LED\_SQUARE\_NODE@{LED\_SQUARE\_NODE}}
+\index{LED\_SQUARE\_NODE@{LED\_SQUARE\_NODE}!output\_thread.c@{output\_thread.c}}
+\doxysubsubsection{\texorpdfstring{LED\_SQUARE\_NODE}{LED\_SQUARE\_NODE}}
+{\footnotesize\ttfamily \#define LED\+\_\+\+SQUARE\+\_\+\+NODE~DT\+\_\+\+ALIAS(ledsquare)}
+
+\mbox{\Hypertarget{output__thread_8c_a2b9c3e4db2c64c2d18f0f26beee78b95}\label{output__thread_8c_a2b9c3e4db2c64c2d18f0f26beee78b95}} 
+\index{output\_thread.c@{output\_thread.c}!LED\_TRIANGLE\_NODE@{LED\_TRIANGLE\_NODE}}
+\index{LED\_TRIANGLE\_NODE@{LED\_TRIANGLE\_NODE}!output\_thread.c@{output\_thread.c}}
+\doxysubsubsection{\texorpdfstring{LED\_TRIANGLE\_NODE}{LED\_TRIANGLE\_NODE}}
+{\footnotesize\ttfamily \#define LED\+\_\+\+TRIANGLE\+\_\+\+NODE~DT\+\_\+\+ALIAS(ledtriangle)}
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{output__thread_8c_aa0507a46d481871c38a22bbcf90b1b38}\label{output__thread_8c_aa0507a46d481871c38a22bbcf90b1b38}} 
+\index{output\_thread.c@{output\_thread.c}!output\_thread\_entry@{output\_thread\_entry}}
+\index{output\_thread\_entry@{output\_thread\_entry}!output\_thread.c@{output\_thread.c}}
+\doxysubsubsection{\texorpdfstring{output\_thread\_entry()}{output\_thread\_entry()}}
+{\footnotesize\ttfamily void output\+\_\+thread\+\_\+entry (\begin{DoxyParamCaption}\item[{void $\ast$}]{p1,  }\item[{void $\ast$}]{p2,  }\item[{void $\ast$}]{p3 }\end{DoxyParamCaption})}
+
+
+
+Output Thread Entry Point. 
+
+
+\begin{DoxyItemize}
+\item Periodically polls the RTDB state and updates GPIO pins. Rate limited to avoid consuming unnecessary CPU cycles. 
+\end{DoxyItemize}Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{output__thread_8c_aa0507a46d481871c38a22bbcf90b1b38_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=273pt]{output__thread_8c_aa0507a46d481871c38a22bbcf90b1b38_icgraph}
+\end{center}
+\end{figure}
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{output__thread_8c_a42736cc182ce0fbfbedc2d7e88b724c5}\label{output__thread_8c_a42736cc182ce0fbfbedc2d7e88b724c5}} 
+\index{output\_thread.c@{output\_thread.c}!led\_act\_spec@{led\_act\_spec}}
+\index{led\_act\_spec@{led\_act\_spec}!output\_thread.c@{output\_thread.c}}
+\doxysubsubsection{\texorpdfstring{led\_act\_spec}{led\_act\_spec}}
+{\footnotesize\ttfamily const struct gpio\+\_\+dt\+\_\+spec led\+\_\+act\+\_\+spec = GPIO\+\_\+\+DT\+\_\+\+SPEC\+\_\+\+GET(\mbox{\hyperlink{output__thread_8c_a8c7c454c3339f7a2b2e880689df4043f}{LED\+\_\+\+ACTIVE\+\_\+\+NODE}}, gpios)\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{output__thread_8c_ad0e79c0bbb8c991bbb2fd9b8570b573f}\label{output__thread_8c_ad0e79c0bbb8c991bbb2fd9b8570b573f}} 
+\index{output\_thread.c@{output\_thread.c}!led\_sin\_spec@{led\_sin\_spec}}
+\index{led\_sin\_spec@{led\_sin\_spec}!output\_thread.c@{output\_thread.c}}
+\doxysubsubsection{\texorpdfstring{led\_sin\_spec}{led\_sin\_spec}}
+{\footnotesize\ttfamily const struct gpio\+\_\+dt\+\_\+spec led\+\_\+sin\+\_\+spec = GPIO\+\_\+\+DT\+\_\+\+SPEC\+\_\+\+GET(\mbox{\hyperlink{output__thread_8c_a8a5bd6ecac3a487d53b230e384cc8ecd}{LED\+\_\+\+SINE\+\_\+\+NODE}}, gpios)\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{output__thread_8c_a559dc93551f5726acf739278d9289500}\label{output__thread_8c_a559dc93551f5726acf739278d9289500}} 
+\index{output\_thread.c@{output\_thread.c}!led\_sq\_spec@{led\_sq\_spec}}
+\index{led\_sq\_spec@{led\_sq\_spec}!output\_thread.c@{output\_thread.c}}
+\doxysubsubsection{\texorpdfstring{led\_sq\_spec}{led\_sq\_spec}}
+{\footnotesize\ttfamily const struct gpio\+\_\+dt\+\_\+spec led\+\_\+sq\+\_\+spec = GPIO\+\_\+\+DT\+\_\+\+SPEC\+\_\+\+GET(\mbox{\hyperlink{output__thread_8c_a4420dc8e1ab111744892b4a3bb8618ca}{LED\+\_\+\+SQUARE\+\_\+\+NODE}}, gpios)\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{output__thread_8c_a9c4a32abfa2eacb8dcf514e62200f003}\label{output__thread_8c_a9c4a32abfa2eacb8dcf514e62200f003}} 
+\index{output\_thread.c@{output\_thread.c}!led\_tri\_spec@{led\_tri\_spec}}
+\index{led\_tri\_spec@{led\_tri\_spec}!output\_thread.c@{output\_thread.c}}
+\doxysubsubsection{\texorpdfstring{led\_tri\_spec}{led\_tri\_spec}}
+{\footnotesize\ttfamily const struct gpio\+\_\+dt\+\_\+spec led\+\_\+tri\+\_\+spec = GPIO\+\_\+\+DT\+\_\+\+SPEC\+\_\+\+GET(\mbox{\hyperlink{output__thread_8c_a2b9c3e4db2c64c2d18f0f26beee78b95}{LED\+\_\+\+TRIANGLE\+\_\+\+NODE}}, gpios)\hspace{0.3cm}{\ttfamily [static]}}
+

@@ -1,0 +1,107 @@
+\hypertarget{siggen__thread_8h}{}\doxysection{src/siggen\+\_\+thread.h File Reference}
+\label{siggen__thread_8h}\index{src/siggen\_thread.h@{src/siggen\_thread.h}}
+
+
+Signal Generator Thread Interface.  
+
+
+{\ttfamily \#include $<$zephyr/kernel.\+h$>$}\newline
+Include dependency graph for siggen\+\_\+thread.\+h\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=192pt]{siggen__thread_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=276pt]{siggen__thread_8h__dep__incl}
+\end{center}
+\end{figure}
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{siggen__thread_8h_a4aac3bf3b53b8ba58cdc4db08d026d94}{SIGGEN\+\_\+\+THREAD\+\_\+\+STACK\+\_\+\+SIZE}}~1024
+\begin{DoxyCompactList}\small\item\em Stack size. Needs to be generous for floating-\/point operations (FPU). \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{siggen__thread_8h_aeaec7e7adcb90c73b432e831b730bb09}{SIGGEN\+\_\+\+THREAD\+\_\+\+PRIORITY}}~2
+\begin{DoxyCompactList}\small\item\em Thread Priority (2). VERY HIGH PRIORITY. In Zephyr, lower number = higher priority. This ensures the signal generator preempts all other tasks (Input, UART, LEDs). \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{siggen__thread_8h_a975e5c3f935876e2876b948e13501002}{siggen\+\_\+thread\+\_\+entry}} (void $\ast$p1, void $\ast$p2, void $\ast$p3)
+\begin{DoxyCompactList}\small\item\em Signal Generator Thread Entry Point. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Signal Generator Thread Interface. 
+
+
+\begin{DoxyItemize}
+\item This module is the \char`\"{}\+Hard Real-\/\+Time\char`\"{} core of the project. It is responsible for calculating waveform samples and updating the PWM duty cycle within a strict deadline (100us). 
+\end{DoxyItemize}
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\Hypertarget{siggen__thread_8h_aeaec7e7adcb90c73b432e831b730bb09}\label{siggen__thread_8h_aeaec7e7adcb90c73b432e831b730bb09}} 
+\index{siggen\_thread.h@{siggen\_thread.h}!SIGGEN\_THREAD\_PRIORITY@{SIGGEN\_THREAD\_PRIORITY}}
+\index{SIGGEN\_THREAD\_PRIORITY@{SIGGEN\_THREAD\_PRIORITY}!siggen\_thread.h@{siggen\_thread.h}}
+\doxysubsubsection{\texorpdfstring{SIGGEN\_THREAD\_PRIORITY}{SIGGEN\_THREAD\_PRIORITY}}
+{\footnotesize\ttfamily \#define SIGGEN\+\_\+\+THREAD\+\_\+\+PRIORITY~2}
+
+
+
+Thread Priority (2). VERY HIGH PRIORITY. In Zephyr, lower number = higher priority. This ensures the signal generator preempts all other tasks (Input, UART, LEDs). 
+
+
+\begin{DoxyItemize}
+\item 
+\end{DoxyItemize}\mbox{\Hypertarget{siggen__thread_8h_a4aac3bf3b53b8ba58cdc4db08d026d94}\label{siggen__thread_8h_a4aac3bf3b53b8ba58cdc4db08d026d94}} 
+\index{siggen\_thread.h@{siggen\_thread.h}!SIGGEN\_THREAD\_STACK\_SIZE@{SIGGEN\_THREAD\_STACK\_SIZE}}
+\index{SIGGEN\_THREAD\_STACK\_SIZE@{SIGGEN\_THREAD\_STACK\_SIZE}!siggen\_thread.h@{siggen\_thread.h}}
+\doxysubsubsection{\texorpdfstring{SIGGEN\_THREAD\_STACK\_SIZE}{SIGGEN\_THREAD\_STACK\_SIZE}}
+{\footnotesize\ttfamily \#define SIGGEN\+\_\+\+THREAD\+\_\+\+STACK\+\_\+\+SIZE~1024}
+
+
+
+Stack size. Needs to be generous for floating-\/point operations (FPU). 
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{siggen__thread_8h_a975e5c3f935876e2876b948e13501002}\label{siggen__thread_8h_a975e5c3f935876e2876b948e13501002}} 
+\index{siggen\_thread.h@{siggen\_thread.h}!siggen\_thread\_entry@{siggen\_thread\_entry}}
+\index{siggen\_thread\_entry@{siggen\_thread\_entry}!siggen\_thread.h@{siggen\_thread.h}}
+\doxysubsubsection{\texorpdfstring{siggen\_thread\_entry()}{siggen\_thread\_entry()}}
+{\footnotesize\ttfamily void siggen\+\_\+thread\+\_\+entry (\begin{DoxyParamCaption}\item[{void $\ast$}]{p1,  }\item[{void $\ast$}]{p2,  }\item[{void $\ast$}]{p3 }\end{DoxyParamCaption})}
+
+
+
+Signal Generator Thread Entry Point. 
+
+
+\begin{DoxyItemize}
+\item Contains the main loop that\+:
+\end{DoxyItemize}
+\begin{DoxyEnumerate}
+\item Reads configuration from RTDB.
+\item Feeds the Watchdog Timer.
+\item Manages the hardware timer for precise sample output. 
+\end{DoxyEnumerate}Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{siggen__thread_8h_a975e5c3f935876e2876b948e13501002_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=273pt]{siggen__thread_8h_a975e5c3f935876e2876b948e13501002_icgraph}
+\end{center}
+\end{figure}

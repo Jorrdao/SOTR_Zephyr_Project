@@ -1,0 +1,4 @@
+<map id="gantt_logger_init" name="gantt_logger_init">
+<area shape="rect" id="node1" title="Initializes the Logger subsystem. Resets ring buffer indices and registers." alt="" coords="108,5,240,32"/>
+<area shape="rect" id="node2" href="$main_8c.html#a6288eba0f8e8ad3ab1544ad731eb7667" title="Main Application Entry Point." alt="" coords="5,5,60,32"/>
+</map>

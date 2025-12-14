@@ -1,0 +1,99 @@
+\hypertarget{input__thread_8h}{}\doxysection{src/input\+\_\+thread.h File Reference}
+\label{input__thread_8h}\index{src/input\_thread.h@{src/input\_thread.h}}
+
+
+Human-\/\+Machine Interface (HMI) Handling Module.  
+
+
+{\ttfamily \#include $<$zephyr/kernel.\+h$>$}\newline
+Include dependency graph for input\+\_\+thread.\+h\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=184pt]{input__thread_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=270pt]{input__thread_8h__dep__incl}
+\end{center}
+\end{figure}
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{input__thread_8h_a8cd25f097adebba7ee569eabde5bcacb}{INPUT\+\_\+\+THREAD\+\_\+\+STACK\+\_\+\+SIZE}}~1024
+\begin{DoxyCompactList}\small\item\em Stack size in bytes. Sufficient for basic GPIO and RTDB calls. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{input__thread_8h_a526d6a12b48555942bd370ef8c2140f2}{INPUT\+\_\+\+THREAD\+\_\+\+PRIORITY}}~5
+\begin{DoxyCompactList}\small\item\em Priority level (5). Higher than UART (7) and Output (10), lower than Sig\+Gen (2). \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{input__thread_8h_ade1dff01707e76f7dc1b91150379d2e6}{input\+\_\+thread\+\_\+entry}} (void $\ast$p1, void $\ast$p2, void $\ast$p3)
+\begin{DoxyCompactList}\small\item\em Entry point for the Input Processing Thread. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Human-\/\+Machine Interface (HMI) Handling Module. 
+
+
+\begin{DoxyItemize}
+\item This module manages the 4 physical buttons on the n\+RF52840-\/\+DK. It uses interrupts and semaphores to react to user input with low latency. 
+\end{DoxyItemize}
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\Hypertarget{input__thread_8h_a526d6a12b48555942bd370ef8c2140f2}\label{input__thread_8h_a526d6a12b48555942bd370ef8c2140f2}} 
+\index{input\_thread.h@{input\_thread.h}!INPUT\_THREAD\_PRIORITY@{INPUT\_THREAD\_PRIORITY}}
+\index{INPUT\_THREAD\_PRIORITY@{INPUT\_THREAD\_PRIORITY}!input\_thread.h@{input\_thread.h}}
+\doxysubsubsection{\texorpdfstring{INPUT\_THREAD\_PRIORITY}{INPUT\_THREAD\_PRIORITY}}
+{\footnotesize\ttfamily \#define INPUT\+\_\+\+THREAD\+\_\+\+PRIORITY~5}
+
+
+
+Priority level (5). Higher than UART (7) and Output (10), lower than Sig\+Gen (2). 
+
+\mbox{\Hypertarget{input__thread_8h_a8cd25f097adebba7ee569eabde5bcacb}\label{input__thread_8h_a8cd25f097adebba7ee569eabde5bcacb}} 
+\index{input\_thread.h@{input\_thread.h}!INPUT\_THREAD\_STACK\_SIZE@{INPUT\_THREAD\_STACK\_SIZE}}
+\index{INPUT\_THREAD\_STACK\_SIZE@{INPUT\_THREAD\_STACK\_SIZE}!input\_thread.h@{input\_thread.h}}
+\doxysubsubsection{\texorpdfstring{INPUT\_THREAD\_STACK\_SIZE}{INPUT\_THREAD\_STACK\_SIZE}}
+{\footnotesize\ttfamily \#define INPUT\+\_\+\+THREAD\+\_\+\+STACK\+\_\+\+SIZE~1024}
+
+
+
+Stack size in bytes. Sufficient for basic GPIO and RTDB calls. 
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{input__thread_8h_ade1dff01707e76f7dc1b91150379d2e6}\label{input__thread_8h_ade1dff01707e76f7dc1b91150379d2e6}} 
+\index{input\_thread.h@{input\_thread.h}!input\_thread\_entry@{input\_thread\_entry}}
+\index{input\_thread\_entry@{input\_thread\_entry}!input\_thread.h@{input\_thread.h}}
+\doxysubsubsection{\texorpdfstring{input\_thread\_entry()}{input\_thread\_entry()}}
+{\footnotesize\ttfamily void input\+\_\+thread\+\_\+entry (\begin{DoxyParamCaption}\item[{void $\ast$}]{p1,  }\item[{void $\ast$}]{p2,  }\item[{void $\ast$}]{p3 }\end{DoxyParamCaption})}
+
+
+
+Entry point for the Input Processing Thread. 
+
+
+\begin{DoxyItemize}
+\item This thread sleeps on a semaphore waiting for GPIO interrupts. When a button is pressed, it wakes up, debounces the signal, updates the RTDB state, and logs the event to the Gantt chart. 
+\end{DoxyItemize}Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{input__thread_8h_ade1dff01707e76f7dc1b91150379d2e6_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=266pt]{input__thread_8h_ade1dff01707e76f7dc1b91150379d2e6_icgraph}
+\end{center}
+\end{figure}

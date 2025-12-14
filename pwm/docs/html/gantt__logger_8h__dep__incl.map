@@ -1,0 +1,9 @@
+<map id="src/gantt_logger.h" name="src/gantt_logger.h">
+<area shape="rect" id="node1" title="Low&#45;Overhead Lock&#45;Free Logger for Gantt Chart generation." alt="" coords="432,5,571,32"/>
+<area shape="rect" id="node2" href="$command__thread_8c.html" title=" " alt="" coords="5,80,176,107"/>
+<area shape="rect" id="node3" href="$gantt__logger_8c.html" title=" " alt="" coords="201,80,338,107"/>
+<area shape="rect" id="node4" href="$input__thread_8c.html" title=" " alt="" coords="363,80,501,107"/>
+<area shape="rect" id="node5" href="$main_8c.html" title="System Entry Point and Orchestrator." alt="" coords="526,80,615,107"/>
+<area shape="rect" id="node6" href="$output__thread_8c.html" title=" " alt="" coords="640,80,787,107"/>
+<area shape="rect" id="node7" href="$siggen__thread_8c.html" title=" " alt="" coords="811,80,959,107"/>
+</map>

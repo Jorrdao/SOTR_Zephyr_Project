@@ -1,0 +1,67 @@
+\hypertarget{structgantt__event__t}{}\doxysection{gantt\+\_\+event\+\_\+t Struct Reference}
+\label{structgantt__event__t}\index{gantt\_event\_t@{gantt\_event\_t}}
+
+
+Event Structure (Optimized for memory alignment). Size\+: 8 bytes per event.  
+
+
+
+
+{\ttfamily \#include $<$gantt\+\_\+logger.\+h$>$}
+
+
+
+Collaboration diagram for gantt\+\_\+event\+\_\+t\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=178pt]{structgantt__event__t__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{structgantt__event__t_a6e8e56a2024998da3f41e3b60ed29d78}{timestamp\+\_\+us}}
+\item 
+uint8\+\_\+t \mbox{\hyperlink{structgantt__event__t_a9fa5d9780edc14e6499c4af310f151ac}{thread\+\_\+id}}
+\item 
+uint8\+\_\+t \mbox{\hyperlink{structgantt__event__t_a155c393b1aa98b99fa415629ad159104}{event\+\_\+type}}
+\item 
+uint16\+\_\+t \mbox{\hyperlink{structgantt__event__t_ad34572a6f5a997b31ed6458122fe228f}{reserved}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Event Structure (Optimized for memory alignment). Size\+: 8 bytes per event. 
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{structgantt__event__t_a155c393b1aa98b99fa415629ad159104}\label{structgantt__event__t_a155c393b1aa98b99fa415629ad159104}} 
+\index{gantt\_event\_t@{gantt\_event\_t}!event\_type@{event\_type}}
+\index{event\_type@{event\_type}!gantt\_event\_t@{gantt\_event\_t}}
+\doxysubsubsection{\texorpdfstring{event\_type}{event\_type}}
+{\footnotesize\ttfamily uint8\+\_\+t gantt\+\_\+event\+\_\+t\+::event\+\_\+type}
+
+START or END \mbox{\Hypertarget{structgantt__event__t_ad34572a6f5a997b31ed6458122fe228f}\label{structgantt__event__t_ad34572a6f5a997b31ed6458122fe228f}} 
+\index{gantt\_event\_t@{gantt\_event\_t}!reserved@{reserved}}
+\index{reserved@{reserved}!gantt\_event\_t@{gantt\_event\_t}}
+\doxysubsubsection{\texorpdfstring{reserved}{reserved}}
+{\footnotesize\ttfamily uint16\+\_\+t gantt\+\_\+event\+\_\+t\+::reserved}
+
+Padding \mbox{\Hypertarget{structgantt__event__t_a9fa5d9780edc14e6499c4af310f151ac}\label{structgantt__event__t_a9fa5d9780edc14e6499c4af310f151ac}} 
+\index{gantt\_event\_t@{gantt\_event\_t}!thread\_id@{thread\_id}}
+\index{thread\_id@{thread\_id}!gantt\_event\_t@{gantt\_event\_t}}
+\doxysubsubsection{\texorpdfstring{thread\_id}{thread\_id}}
+{\footnotesize\ttfamily uint8\+\_\+t gantt\+\_\+event\+\_\+t\+::thread\+\_\+id}
+
+Unique Thread ID \mbox{\Hypertarget{structgantt__event__t_a6e8e56a2024998da3f41e3b60ed29d78}\label{structgantt__event__t_a6e8e56a2024998da3f41e3b60ed29d78}} 
+\index{gantt\_event\_t@{gantt\_event\_t}!timestamp\_us@{timestamp\_us}}
+\index{timestamp\_us@{timestamp\_us}!gantt\_event\_t@{gantt\_event\_t}}
+\doxysubsubsection{\texorpdfstring{timestamp\_us}{timestamp\_us}}
+{\footnotesize\ttfamily uint32\+\_\+t gantt\+\_\+event\+\_\+t\+::timestamp\+\_\+us}
+
+Timestamp in microseconds 
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/\mbox{\hyperlink{gantt__logger_8h}{gantt\+\_\+logger.\+h}}\end{DoxyCompactItemize}

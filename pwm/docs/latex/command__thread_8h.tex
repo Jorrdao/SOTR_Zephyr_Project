@@ -1,0 +1,108 @@
+\hypertarget{command__thread_8h}{}\doxysection{src/command\+\_\+thread.h File Reference}
+\label{command__thread_8h}\index{src/command\_thread.h@{src/command\_thread.h}}
+
+
+UART Command Processing Interface.  
+
+
+{\ttfamily \#include $<$zephyr/kernel.\+h$>$}\newline
+Include dependency graph for command\+\_\+thread.\+h\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=208pt]{command__thread_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=294pt]{command__thread_8h__dep__incl}
+\end{center}
+\end{figure}
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{command__thread_8h_ae5912eba3988ad7cbcfa5d83df197b83}{COMMAND\+\_\+\+THREAD\+\_\+\+STACK\+\_\+\+SIZE}}~1024
+\begin{DoxyCompactList}\small\item\em Stack size. Needs space for string buffers (rx\+\_\+buf). \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{command__thread_8h_ad59400ebe8c8c9e75e1bf5849c025fd2}{COMMAND\+\_\+\+THREAD\+\_\+\+PRIORITY}}~7
+\begin{DoxyCompactList}\small\item\em Thread Priority (7). Medium/\+Low Priority. Higher than visual output, but lower than Input and Sig\+Gen. Allows parsing complex strings (sprintf/atoi) without causing jitter in the signal output. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{command__thread_8h_af3090a5e77f5079df317164dd19966d0}{command\+\_\+thread\+\_\+entry}} (void $\ast$p1, void $\ast$p2, void $\ast$p3)
+\begin{DoxyCompactList}\small\item\em Command Parser Thread Entry Point. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+UART Command Processing Interface. 
+
+
+\begin{DoxyItemize}
+\item Handles protocol parsing, checksum validation, and execution of commands received from the host PC. 
+\end{DoxyItemize}
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\Hypertarget{command__thread_8h_ad59400ebe8c8c9e75e1bf5849c025fd2}\label{command__thread_8h_ad59400ebe8c8c9e75e1bf5849c025fd2}} 
+\index{command\_thread.h@{command\_thread.h}!COMMAND\_THREAD\_PRIORITY@{COMMAND\_THREAD\_PRIORITY}}
+\index{COMMAND\_THREAD\_PRIORITY@{COMMAND\_THREAD\_PRIORITY}!command\_thread.h@{command\_thread.h}}
+\doxysubsubsection{\texorpdfstring{COMMAND\_THREAD\_PRIORITY}{COMMAND\_THREAD\_PRIORITY}}
+{\footnotesize\ttfamily \#define COMMAND\+\_\+\+THREAD\+\_\+\+PRIORITY~7}
+
+
+
+Thread Priority (7). Medium/\+Low Priority. Higher than visual output, but lower than Input and Sig\+Gen. Allows parsing complex strings (sprintf/atoi) without causing jitter in the signal output. 
+
+
+\begin{DoxyItemize}
+\item 
+\end{DoxyItemize}\mbox{\Hypertarget{command__thread_8h_ae5912eba3988ad7cbcfa5d83df197b83}\label{command__thread_8h_ae5912eba3988ad7cbcfa5d83df197b83}} 
+\index{command\_thread.h@{command\_thread.h}!COMMAND\_THREAD\_STACK\_SIZE@{COMMAND\_THREAD\_STACK\_SIZE}}
+\index{COMMAND\_THREAD\_STACK\_SIZE@{COMMAND\_THREAD\_STACK\_SIZE}!command\_thread.h@{command\_thread.h}}
+\doxysubsubsection{\texorpdfstring{COMMAND\_THREAD\_STACK\_SIZE}{COMMAND\_THREAD\_STACK\_SIZE}}
+{\footnotesize\ttfamily \#define COMMAND\+\_\+\+THREAD\+\_\+\+STACK\+\_\+\+SIZE~1024}
+
+
+
+Stack size. Needs space for string buffers (rx\+\_\+buf). 
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{command__thread_8h_af3090a5e77f5079df317164dd19966d0}\label{command__thread_8h_af3090a5e77f5079df317164dd19966d0}} 
+\index{command\_thread.h@{command\_thread.h}!command\_thread\_entry@{command\_thread\_entry}}
+\index{command\_thread\_entry@{command\_thread\_entry}!command\_thread.h@{command\_thread.h}}
+\doxysubsubsection{\texorpdfstring{command\_thread\_entry()}{command\_thread\_entry()}}
+{\footnotesize\ttfamily void command\+\_\+thread\+\_\+entry (\begin{DoxyParamCaption}\item[{void $\ast$}]{p1,  }\item[{void $\ast$}]{p2,  }\item[{void $\ast$}]{p3 }\end{DoxyParamCaption})}
+
+
+
+Command Parser Thread Entry Point. 
+
+
+\begin{DoxyItemize}
+\item Implements a polling loop on the UART interface to\+:
+\end{DoxyItemize}
+\begin{DoxyEnumerate}
+\item Assemble incoming characters into packets.
+\item Validate Checksums (Data Integrity).
+\item Update RTDB based on commands (SF, SA, SO).
+\item Control the Gantt Logger state (GL). 
+\end{DoxyEnumerate}Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{command__thread_8h_af3090a5e77f5079df317164dd19966d0_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=290pt]{command__thread_8h_af3090a5e77f5079df317164dd19966d0_icgraph}
+\end{center}
+\end{figure}

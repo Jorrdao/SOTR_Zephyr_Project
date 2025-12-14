@@ -1,0 +1,67 @@
+\hypertarget{structrtdb__state__t}{}\doxysection{rtdb\+\_\+state\+\_\+t Struct Reference}
+\label{structrtdb__state__t}\index{rtdb\_state\_t@{rtdb\_state\_t}}
+
+
+System State Structure. Holds the current configuration of the waveform generator.  
+
+
+
+
+{\ttfamily \#include $<$rtdb.\+h$>$}
+
+
+
+Collaboration diagram for rtdb\+\_\+state\+\_\+t\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=175pt]{structrtdb__state__t__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{structrtdb__state__t_a1021be7e84ac946f1caa476fea99e4f2}{frequency\+\_\+hz}}
+\item 
+float \mbox{\hyperlink{structrtdb__state__t_adc4acdf9de15c5ef320336a090cfddd0}{amplitude\+\_\+v}}
+\item 
+\mbox{\hyperlink{rtdb_8h_ace4881961545fb59dbc8d12eb40ae3db}{wave\+\_\+type\+\_\+t}} \mbox{\hyperlink{structrtdb__state__t_a3be0c06df443c38a7a0f1b54cdb335c3}{wave\+\_\+type}}
+\item 
+bool \mbox{\hyperlink{structrtdb__state__t_a3210fda80fdc0a8ee0eab83ecb23ef2b}{output\+\_\+active}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+System State Structure. Holds the current configuration of the waveform generator. 
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{structrtdb__state__t_adc4acdf9de15c5ef320336a090cfddd0}\label{structrtdb__state__t_adc4acdf9de15c5ef320336a090cfddd0}} 
+\index{rtdb\_state\_t@{rtdb\_state\_t}!amplitude\_v@{amplitude\_v}}
+\index{amplitude\_v@{amplitude\_v}!rtdb\_state\_t@{rtdb\_state\_t}}
+\doxysubsubsection{\texorpdfstring{amplitude\_v}{amplitude\_v}}
+{\footnotesize\ttfamily float rtdb\+\_\+state\+\_\+t\+::amplitude\+\_\+v}
+
+Amplitude in Volts (0.\+0-\/2.\+5V) \mbox{\Hypertarget{structrtdb__state__t_a1021be7e84ac946f1caa476fea99e4f2}\label{structrtdb__state__t_a1021be7e84ac946f1caa476fea99e4f2}} 
+\index{rtdb\_state\_t@{rtdb\_state\_t}!frequency\_hz@{frequency\_hz}}
+\index{frequency\_hz@{frequency\_hz}!rtdb\_state\_t@{rtdb\_state\_t}}
+\doxysubsubsection{\texorpdfstring{frequency\_hz}{frequency\_hz}}
+{\footnotesize\ttfamily int rtdb\+\_\+state\+\_\+t\+::frequency\+\_\+hz}
+
+Frequency in Hertz (10-\/100Hz) \mbox{\Hypertarget{structrtdb__state__t_a3210fda80fdc0a8ee0eab83ecb23ef2b}\label{structrtdb__state__t_a3210fda80fdc0a8ee0eab83ecb23ef2b}} 
+\index{rtdb\_state\_t@{rtdb\_state\_t}!output\_active@{output\_active}}
+\index{output\_active@{output\_active}!rtdb\_state\_t@{rtdb\_state\_t}}
+\doxysubsubsection{\texorpdfstring{output\_active}{output\_active}}
+{\footnotesize\ttfamily bool rtdb\+\_\+state\+\_\+t\+::output\+\_\+active}
+
+Master Output Switch (ON/\+OFF) \mbox{\Hypertarget{structrtdb__state__t_a3be0c06df443c38a7a0f1b54cdb335c3}\label{structrtdb__state__t_a3be0c06df443c38a7a0f1b54cdb335c3}} 
+\index{rtdb\_state\_t@{rtdb\_state\_t}!wave\_type@{wave\_type}}
+\index{wave\_type@{wave\_type}!rtdb\_state\_t@{rtdb\_state\_t}}
+\doxysubsubsection{\texorpdfstring{wave\_type}{wave\_type}}
+{\footnotesize\ttfamily \mbox{\hyperlink{rtdb_8h_ace4881961545fb59dbc8d12eb40ae3db}{wave\+\_\+type\+\_\+t}} rtdb\+\_\+state\+\_\+t\+::wave\+\_\+type}
+
+Current waveform type 
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/\mbox{\hyperlink{rtdb_8h}{rtdb.\+h}}\end{DoxyCompactItemize}

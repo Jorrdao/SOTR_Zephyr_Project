@@ -1,0 +1,182 @@
+\hypertarget{siggen__thread_8c}{}\doxysection{src/siggen\+\_\+thread.c File Reference}
+\label{siggen__thread_8c}\index{src/siggen\_thread.c@{src/siggen\_thread.c}}
+{\ttfamily \#include \char`\"{}siggen\+\_\+thread.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}rtdb.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$zephyr/drivers/pwm.\+h$>$}\newline
+{\ttfamily \#include $<$zephyr/sys/printk.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}gantt\+\_\+logger.\+h\char`\"{}}\newline
+Include dependency graph for siggen\+\_\+thread.\+c\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{siggen__thread_8c__incl}
+\end{center}
+\end{figure}
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{siggen__thread_8c_a048ad775fc58462ebd5c173a05640c36}{PWM\+\_\+\+NODE}}~DT\+\_\+\+ALIAS(signal\+\_\+pwm)
+\item 
+\#define \mbox{\hyperlink{siggen__thread_8c_a2bff6717a016711448c307c29db6f90e}{PWM\+\_\+\+CARRIER\+\_\+\+NS}}~20000
+\item 
+\#define \mbox{\hyperlink{siggen__thread_8c_a60578cabc19ab0a4d7800398a84fa3ee}{BOARD\+\_\+\+VDD\+\_\+\+VOLTAGE}}~3.\+3f
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{siggen__thread_8c_a1f658026acd6af9a9f4f431ff31f6854}{sample\+\_\+timer\+\_\+handler}} (struct k\+\_\+timer $\ast$dummy)
+\item 
+void \mbox{\hyperlink{siggen__thread_8c_a975e5c3f935876e2876b948e13501002}{siggen\+\_\+thread\+\_\+entry}} (void $\ast$p1, void $\ast$p2, void $\ast$p3)
+\begin{DoxyCompactList}\small\item\em Signal Generator Thread Entry Point. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+static const float \mbox{\hyperlink{siggen__thread_8c_ac22bfffb223ef53c9a880d2017b68df2}{sine\+\_\+lut}} \mbox{[}100\mbox{]}
+\item 
+static const struct pwm\+\_\+dt\+\_\+spec \mbox{\hyperlink{siggen__thread_8c_a6bde5cf0d410968a991afd2da8201785}{pwm\+\_\+dev}} = PWM\+\_\+\+DT\+\_\+\+SPEC\+\_\+\+GET(\mbox{\hyperlink{siggen__thread_8c_a048ad775fc58462ebd5c173a05640c36}{PWM\+\_\+\+NODE}})
+\item 
+static struct k\+\_\+timer \mbox{\hyperlink{siggen__thread_8c_a51a41fa6af22a0b0b2b161d02a8b63d8}{sample\+\_\+timer}}
+\item 
+static volatile int \mbox{\hyperlink{siggen__thread_8c_a67030cd17cb228b67ac71ed15e88d394}{sample\+\_\+index}} = 0
+\item 
+static volatile \mbox{\hyperlink{rtdb_8h_ace4881961545fb59dbc8d12eb40ae3db}{wave\+\_\+type\+\_\+t}} \mbox{\hyperlink{siggen__thread_8c_a272171a5313e3e50c65053d91fd42bb5}{current\+\_\+wave\+\_\+type}} = \mbox{\hyperlink{rtdb_8h_ace4881961545fb59dbc8d12eb40ae3dba9f0673bb63db1439b7f3275074f3816e}{WAVE\+\_\+\+SQUARE}}
+\item 
+static volatile float \mbox{\hyperlink{siggen__thread_8c_a99eb27784864cd16546a4979792c0171}{current\+\_\+amplitude\+\_\+v}} = 0.\+0f
+\item 
+static volatile bool \mbox{\hyperlink{siggen__thread_8c_ac8b7bea2a816a9304a2dbf91faea7c0b}{is\+\_\+output\+\_\+active}} = false
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\Hypertarget{siggen__thread_8c_a60578cabc19ab0a4d7800398a84fa3ee}\label{siggen__thread_8c_a60578cabc19ab0a4d7800398a84fa3ee}} 
+\index{siggen\_thread.c@{siggen\_thread.c}!BOARD\_VDD\_VOLTAGE@{BOARD\_VDD\_VOLTAGE}}
+\index{BOARD\_VDD\_VOLTAGE@{BOARD\_VDD\_VOLTAGE}!siggen\_thread.c@{siggen\_thread.c}}
+\doxysubsubsection{\texorpdfstring{BOARD\_VDD\_VOLTAGE}{BOARD\_VDD\_VOLTAGE}}
+{\footnotesize\ttfamily \#define BOARD\+\_\+\+VDD\+\_\+\+VOLTAGE~3.\+3f}
+
+\mbox{\Hypertarget{siggen__thread_8c_a2bff6717a016711448c307c29db6f90e}\label{siggen__thread_8c_a2bff6717a016711448c307c29db6f90e}} 
+\index{siggen\_thread.c@{siggen\_thread.c}!PWM\_CARRIER\_NS@{PWM\_CARRIER\_NS}}
+\index{PWM\_CARRIER\_NS@{PWM\_CARRIER\_NS}!siggen\_thread.c@{siggen\_thread.c}}
+\doxysubsubsection{\texorpdfstring{PWM\_CARRIER\_NS}{PWM\_CARRIER\_NS}}
+{\footnotesize\ttfamily \#define PWM\+\_\+\+CARRIER\+\_\+\+NS~20000}
+
+\mbox{\Hypertarget{siggen__thread_8c_a048ad775fc58462ebd5c173a05640c36}\label{siggen__thread_8c_a048ad775fc58462ebd5c173a05640c36}} 
+\index{siggen\_thread.c@{siggen\_thread.c}!PWM\_NODE@{PWM\_NODE}}
+\index{PWM\_NODE@{PWM\_NODE}!siggen\_thread.c@{siggen\_thread.c}}
+\doxysubsubsection{\texorpdfstring{PWM\_NODE}{PWM\_NODE}}
+{\footnotesize\ttfamily \#define PWM\+\_\+\+NODE~DT\+\_\+\+ALIAS(signal\+\_\+pwm)}
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{siggen__thread_8c_a1f658026acd6af9a9f4f431ff31f6854}\label{siggen__thread_8c_a1f658026acd6af9a9f4f431ff31f6854}} 
+\index{siggen\_thread.c@{siggen\_thread.c}!sample\_timer\_handler@{sample\_timer\_handler}}
+\index{sample\_timer\_handler@{sample\_timer\_handler}!siggen\_thread.c@{siggen\_thread.c}}
+\doxysubsubsection{\texorpdfstring{sample\_timer\_handler()}{sample\_timer\_handler()}}
+{\footnotesize\ttfamily void sample\+\_\+timer\+\_\+handler (\begin{DoxyParamCaption}\item[{struct k\+\_\+timer $\ast$}]{dummy }\end{DoxyParamCaption})}
+
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{siggen__thread_8c_a1f658026acd6af9a9f4f431ff31f6854_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{siggen__thread_8c_a975e5c3f935876e2876b948e13501002}\label{siggen__thread_8c_a975e5c3f935876e2876b948e13501002}} 
+\index{siggen\_thread.c@{siggen\_thread.c}!siggen\_thread\_entry@{siggen\_thread\_entry}}
+\index{siggen\_thread\_entry@{siggen\_thread\_entry}!siggen\_thread.c@{siggen\_thread.c}}
+\doxysubsubsection{\texorpdfstring{siggen\_thread\_entry()}{siggen\_thread\_entry()}}
+{\footnotesize\ttfamily void siggen\+\_\+thread\+\_\+entry (\begin{DoxyParamCaption}\item[{void $\ast$}]{p1,  }\item[{void $\ast$}]{p2,  }\item[{void $\ast$}]{p3 }\end{DoxyParamCaption})}
+
+
+
+Signal Generator Thread Entry Point. 
+
+
+\begin{DoxyItemize}
+\item Contains the main loop that\+:
+\end{DoxyItemize}
+\begin{DoxyEnumerate}
+\item Reads configuration from RTDB.
+\item Feeds the Watchdog Timer.
+\item Manages the hardware timer for precise sample output. 
+\end{DoxyEnumerate}Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{siggen__thread_8c_a975e5c3f935876e2876b948e13501002_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=273pt]{siggen__thread_8c_a975e5c3f935876e2876b948e13501002_icgraph}
+\end{center}
+\end{figure}
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{siggen__thread_8c_a99eb27784864cd16546a4979792c0171}\label{siggen__thread_8c_a99eb27784864cd16546a4979792c0171}} 
+\index{siggen\_thread.c@{siggen\_thread.c}!current\_amplitude\_v@{current\_amplitude\_v}}
+\index{current\_amplitude\_v@{current\_amplitude\_v}!siggen\_thread.c@{siggen\_thread.c}}
+\doxysubsubsection{\texorpdfstring{current\_amplitude\_v}{current\_amplitude\_v}}
+{\footnotesize\ttfamily volatile float current\+\_\+amplitude\+\_\+v = 0.\+0f\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{siggen__thread_8c_a272171a5313e3e50c65053d91fd42bb5}\label{siggen__thread_8c_a272171a5313e3e50c65053d91fd42bb5}} 
+\index{siggen\_thread.c@{siggen\_thread.c}!current\_wave\_type@{current\_wave\_type}}
+\index{current\_wave\_type@{current\_wave\_type}!siggen\_thread.c@{siggen\_thread.c}}
+\doxysubsubsection{\texorpdfstring{current\_wave\_type}{current\_wave\_type}}
+{\footnotesize\ttfamily volatile \mbox{\hyperlink{rtdb_8h_ace4881961545fb59dbc8d12eb40ae3db}{wave\+\_\+type\+\_\+t}} current\+\_\+wave\+\_\+type = \mbox{\hyperlink{rtdb_8h_ace4881961545fb59dbc8d12eb40ae3dba9f0673bb63db1439b7f3275074f3816e}{WAVE\+\_\+\+SQUARE}}\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{siggen__thread_8c_ac8b7bea2a816a9304a2dbf91faea7c0b}\label{siggen__thread_8c_ac8b7bea2a816a9304a2dbf91faea7c0b}} 
+\index{siggen\_thread.c@{siggen\_thread.c}!is\_output\_active@{is\_output\_active}}
+\index{is\_output\_active@{is\_output\_active}!siggen\_thread.c@{siggen\_thread.c}}
+\doxysubsubsection{\texorpdfstring{is\_output\_active}{is\_output\_active}}
+{\footnotesize\ttfamily volatile bool is\+\_\+output\+\_\+active = false\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{siggen__thread_8c_a6bde5cf0d410968a991afd2da8201785}\label{siggen__thread_8c_a6bde5cf0d410968a991afd2da8201785}} 
+\index{siggen\_thread.c@{siggen\_thread.c}!pwm\_dev@{pwm\_dev}}
+\index{pwm\_dev@{pwm\_dev}!siggen\_thread.c@{siggen\_thread.c}}
+\doxysubsubsection{\texorpdfstring{pwm\_dev}{pwm\_dev}}
+{\footnotesize\ttfamily const struct pwm\+\_\+dt\+\_\+spec pwm\+\_\+dev = PWM\+\_\+\+DT\+\_\+\+SPEC\+\_\+\+GET(\mbox{\hyperlink{siggen__thread_8c_a048ad775fc58462ebd5c173a05640c36}{PWM\+\_\+\+NODE}})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{siggen__thread_8c_a67030cd17cb228b67ac71ed15e88d394}\label{siggen__thread_8c_a67030cd17cb228b67ac71ed15e88d394}} 
+\index{siggen\_thread.c@{siggen\_thread.c}!sample\_index@{sample\_index}}
+\index{sample\_index@{sample\_index}!siggen\_thread.c@{siggen\_thread.c}}
+\doxysubsubsection{\texorpdfstring{sample\_index}{sample\_index}}
+{\footnotesize\ttfamily volatile int sample\+\_\+index = 0\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{siggen__thread_8c_a51a41fa6af22a0b0b2b161d02a8b63d8}\label{siggen__thread_8c_a51a41fa6af22a0b0b2b161d02a8b63d8}} 
+\index{siggen\_thread.c@{siggen\_thread.c}!sample\_timer@{sample\_timer}}
+\index{sample\_timer@{sample\_timer}!siggen\_thread.c@{siggen\_thread.c}}
+\doxysubsubsection{\texorpdfstring{sample\_timer}{sample\_timer}}
+{\footnotesize\ttfamily struct k\+\_\+timer sample\+\_\+timer\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{siggen__thread_8c_ac22bfffb223ef53c9a880d2017b68df2}\label{siggen__thread_8c_ac22bfffb223ef53c9a880d2017b68df2}} 
+\index{siggen\_thread.c@{siggen\_thread.c}!sine\_lut@{sine\_lut}}
+\index{sine\_lut@{sine\_lut}!siggen\_thread.c@{siggen\_thread.c}}
+\doxysubsubsection{\texorpdfstring{sine\_lut}{sine\_lut}}
+{\footnotesize\ttfamily const float sine\+\_\+lut\mbox{[}100\mbox{]}\hspace{0.3cm}{\ttfamily [static]}}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{= \{}
+\DoxyCodeLine{    0.500f, 0.531f, 0.563f, 0.594f, 0.625f, 0.655f, 0.684f, 0.713f, 0.740f, 0.766f,}
+\DoxyCodeLine{    0.790f, 0.813f, 0.835f, 0.855f, 0.873f, 0.890f, 0.905f, 0.918f, 0.930f, 0.940f,}
+\DoxyCodeLine{    0.949f, 0.957f, 0.963f, 0.969f, 0.973f, 0.976f, 0.978f, 0.979f, 0.979f, 0.978f,}
+\DoxyCodeLine{    0.976f, 0.973f, 0.969f, 0.963f, 0.957f, 0.949f, 0.940f, 0.930f, 0.918f, 0.905f,}
+\DoxyCodeLine{    0.890f, 0.873f, 0.855f, 0.835f, 0.813f, 0.790f, 0.766f, 0.740f, 0.713f, 0.684f,}
+\DoxyCodeLine{    0.655f, 0.625f, 0.594f, 0.563f, 0.531f, 0.500f, 0.469f, 0.437f, 0.406f, 0.375f,}
+\DoxyCodeLine{    0.345f, 0.316f, 0.287f, 0.260f, 0.234f, 0.210f, 0.187f, 0.165f, 0.145f, 0.127f,}
+\DoxyCodeLine{    0.110f, 0.095f, 0.082f, 0.070f, 0.060f, 0.051f, 0.043f, 0.037f, 0.031f, 0.027f,}
+\DoxyCodeLine{    0.024f, 0.022f, 0.021f, 0.021f, 0.021f, 0.022f, 0.024f, 0.027f, 0.031f, 0.037f,}
+\DoxyCodeLine{    0.043f, 0.051f, 0.060f, 0.070f, 0.082f, 0.095f, 0.110f, 0.127f, 0.145f, 0.165f,}
+\DoxyCodeLine{    0.187f, 0.210f, 0.234f, 0.260f, 0.287f, 0.316f, 0.345f, 0.375f, 0.406f, 0.437f}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}

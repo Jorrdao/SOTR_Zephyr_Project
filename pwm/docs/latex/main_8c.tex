@@ -1,0 +1,163 @@
+\hypertarget{main_8c}{}\doxysection{src/main.c File Reference}
+\label{main_8c}\index{src/main.c@{src/main.c}}
+
+
+System Entry Point and Orchestrator.  
+
+
+{\ttfamily \#include $<$zephyr/kernel.\+h$>$}\newline
+{\ttfamily \#include $<$zephyr/sys/printk.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}rtdb.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}output\+\_\+thread.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}input\+\_\+thread.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}siggen\+\_\+thread.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}command\+\_\+thread.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}gantt\+\_\+logger.\+h\char`\"{}}\newline
+Include dependency graph for main.\+c\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{main_8c__incl}
+\end{center}
+\end{figure}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{main_8c_a2458a7e9029b105dbdbb710607b7e103}{K\+\_\+\+THREAD\+\_\+\+STACK\+\_\+\+DEFINE}} (siggen\+\_\+thread\+\_\+stack, \mbox{\hyperlink{siggen__thread_8h_a4aac3bf3b53b8ba58cdc4db08d026d94}{SIGGEN\+\_\+\+THREAD\+\_\+\+STACK\+\_\+\+SIZE}})
+\begin{DoxyCompactList}\small\item\em Stack for Signal Generator (High Prio). Requires FPU context. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{main_8c_ab8a6fa917dff3dbed747428c68c3ccba}{K\+\_\+\+THREAD\+\_\+\+STACK\+\_\+\+DEFINE}} (input\+\_\+thread\+\_\+stack, \mbox{\hyperlink{input__thread_8h_a8cd25f097adebba7ee569eabde5bcacb}{INPUT\+\_\+\+THREAD\+\_\+\+STACK\+\_\+\+SIZE}})
+\begin{DoxyCompactList}\small\item\em Stack for Input Processing. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{main_8c_a7229d700016b9b4ae9a05cb78044235d}{K\+\_\+\+THREAD\+\_\+\+STACK\+\_\+\+DEFINE}} (command\+\_\+thread\+\_\+stack, \mbox{\hyperlink{command__thread_8h_ae5912eba3988ad7cbcfa5d83df197b83}{COMMAND\+\_\+\+THREAD\+\_\+\+STACK\+\_\+\+SIZE}})
+\begin{DoxyCompactList}\small\item\em Stack for Command Parser. Needs buffer space for string manipulation. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{main_8c_aef3ccb69b6be60a9322872a6c5a37f2b}{K\+\_\+\+THREAD\+\_\+\+STACK\+\_\+\+DEFINE}} (output\+\_\+thread\+\_\+stack, \mbox{\hyperlink{output__thread_8h_a50175bea6dd95323954ec3dfae81fa22}{OUTPUT\+\_\+\+THREAD\+\_\+\+STACK\+\_\+\+SIZE}})
+\begin{DoxyCompactList}\small\item\em Stack for Output/\+LEDs. Minimal requirements. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{main_8c_a6288eba0f8e8ad3ab1544ad731eb7667}{main}} (void)
+\begin{DoxyCompactList}\small\item\em Main Application Entry Point. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+static struct k\+\_\+thread \mbox{\hyperlink{main_8c_aab662f1a7f7a579509728abaf49b7dcf}{siggen\+\_\+thread\+\_\+data}}
+\item 
+static struct k\+\_\+thread \mbox{\hyperlink{main_8c_a6df6a0034fedb139edf737a36a457b51}{input\+\_\+thread\+\_\+data}}
+\item 
+static struct k\+\_\+thread \mbox{\hyperlink{main_8c_afae03d8d4a8b985c014c95b4b2532166}{command\+\_\+thread\+\_\+data}}
+\item 
+static struct k\+\_\+thread \mbox{\hyperlink{main_8c_a7f0d6b28326bc4495dba14929e504845}{output\+\_\+thread\+\_\+data}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+System Entry Point and Orchestrator. 
+
+
+\begin{DoxyItemize}
+\item This module is responsible for the system initialization sequence\+:
+\end{DoxyItemize}
+\begin{DoxyEnumerate}
+\item Initializes the Real-\/\+Time Database (RTDB) \mbox{[}Implicit\mbox{]}.
+\item Initializes the Gantt Logger subsystem.
+\item Spawns all worker threads in order of criticality.
+\end{DoxyEnumerate}
+\begin{DoxyItemize}
+\item \begin{DoxyNote}{Note}
+Architecture\+: The system follows a prioritized preemptive scheduling model compliant with Rate Monotonic Scheduling (RMS) principles. 
+\end{DoxyNote}
+
+\end{DoxyItemize}
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{main_8c_a7229d700016b9b4ae9a05cb78044235d}\label{main_8c_a7229d700016b9b4ae9a05cb78044235d}} 
+\index{main.c@{main.c}!K\_THREAD\_STACK\_DEFINE@{K\_THREAD\_STACK\_DEFINE}}
+\index{K\_THREAD\_STACK\_DEFINE@{K\_THREAD\_STACK\_DEFINE}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{K\_THREAD\_STACK\_DEFINE()}{K\_THREAD\_STACK\_DEFINE()}\hspace{0.1cm}{\footnotesize\ttfamily [1/4]}}
+{\footnotesize\ttfamily K\+\_\+\+THREAD\+\_\+\+STACK\+\_\+\+DEFINE (\begin{DoxyParamCaption}\item[{command\+\_\+thread\+\_\+stack}]{,  }\item[{\mbox{\hyperlink{command__thread_8h_ae5912eba3988ad7cbcfa5d83df197b83}{COMMAND\+\_\+\+THREAD\+\_\+\+STACK\+\_\+\+SIZE}}}]{ }\end{DoxyParamCaption})}
+
+
+
+Stack for Command Parser. Needs buffer space for string manipulation. 
+
+\mbox{\Hypertarget{main_8c_ab8a6fa917dff3dbed747428c68c3ccba}\label{main_8c_ab8a6fa917dff3dbed747428c68c3ccba}} 
+\index{main.c@{main.c}!K\_THREAD\_STACK\_DEFINE@{K\_THREAD\_STACK\_DEFINE}}
+\index{K\_THREAD\_STACK\_DEFINE@{K\_THREAD\_STACK\_DEFINE}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{K\_THREAD\_STACK\_DEFINE()}{K\_THREAD\_STACK\_DEFINE()}\hspace{0.1cm}{\footnotesize\ttfamily [2/4]}}
+{\footnotesize\ttfamily K\+\_\+\+THREAD\+\_\+\+STACK\+\_\+\+DEFINE (\begin{DoxyParamCaption}\item[{input\+\_\+thread\+\_\+stack}]{,  }\item[{\mbox{\hyperlink{input__thread_8h_a8cd25f097adebba7ee569eabde5bcacb}{INPUT\+\_\+\+THREAD\+\_\+\+STACK\+\_\+\+SIZE}}}]{ }\end{DoxyParamCaption})}
+
+
+
+Stack for Input Processing. 
+
+\mbox{\Hypertarget{main_8c_aef3ccb69b6be60a9322872a6c5a37f2b}\label{main_8c_aef3ccb69b6be60a9322872a6c5a37f2b}} 
+\index{main.c@{main.c}!K\_THREAD\_STACK\_DEFINE@{K\_THREAD\_STACK\_DEFINE}}
+\index{K\_THREAD\_STACK\_DEFINE@{K\_THREAD\_STACK\_DEFINE}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{K\_THREAD\_STACK\_DEFINE()}{K\_THREAD\_STACK\_DEFINE()}\hspace{0.1cm}{\footnotesize\ttfamily [3/4]}}
+{\footnotesize\ttfamily K\+\_\+\+THREAD\+\_\+\+STACK\+\_\+\+DEFINE (\begin{DoxyParamCaption}\item[{output\+\_\+thread\+\_\+stack}]{,  }\item[{\mbox{\hyperlink{output__thread_8h_a50175bea6dd95323954ec3dfae81fa22}{OUTPUT\+\_\+\+THREAD\+\_\+\+STACK\+\_\+\+SIZE}}}]{ }\end{DoxyParamCaption})}
+
+
+
+Stack for Output/\+LEDs. Minimal requirements. 
+
+\mbox{\Hypertarget{main_8c_a2458a7e9029b105dbdbb710607b7e103}\label{main_8c_a2458a7e9029b105dbdbb710607b7e103}} 
+\index{main.c@{main.c}!K\_THREAD\_STACK\_DEFINE@{K\_THREAD\_STACK\_DEFINE}}
+\index{K\_THREAD\_STACK\_DEFINE@{K\_THREAD\_STACK\_DEFINE}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{K\_THREAD\_STACK\_DEFINE()}{K\_THREAD\_STACK\_DEFINE()}\hspace{0.1cm}{\footnotesize\ttfamily [4/4]}}
+{\footnotesize\ttfamily K\+\_\+\+THREAD\+\_\+\+STACK\+\_\+\+DEFINE (\begin{DoxyParamCaption}\item[{siggen\+\_\+thread\+\_\+stack}]{,  }\item[{\mbox{\hyperlink{siggen__thread_8h_a4aac3bf3b53b8ba58cdc4db08d026d94}{SIGGEN\+\_\+\+THREAD\+\_\+\+STACK\+\_\+\+SIZE}}}]{ }\end{DoxyParamCaption})}
+
+
+
+Stack for Signal Generator (High Prio). Requires FPU context. 
+
+\mbox{\Hypertarget{main_8c_a6288eba0f8e8ad3ab1544ad731eb7667}\label{main_8c_a6288eba0f8e8ad3ab1544ad731eb7667}} 
+\index{main.c@{main.c}!main@{main}}
+\index{main@{main}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily void main (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+
+
+Main Application Entry Point. 
+
+
+\begin{DoxyItemize}
+\item Configures the system and launches the Real-\/\+Time Operating System kernel. Never returns. 
+\end{DoxyItemize}
+\begin{DoxyItemize}
+\item Launches the Critical Signal Generator Thread. Priority\+: 2 (Highest). Period\+: 100us (Hard Real-\/\+Time).
+\item Launches the Input Handling Thread. Priority\+: 5. Event-\/driven (Interrupts).
+\item Launches the UART Command Parser Thread. Priority\+: 7. Handles heavy string parsing without blocking Sig\+Gen.
+\item Launches the LED Update Thread. Priority\+: 10 (Lowest). Visual feedback is non-\/critical.
+\end{DoxyItemize}Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{main_8c_a6288eba0f8e8ad3ab1544ad731eb7667_cgraph}
+\end{center}
+\end{figure}
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{main_8c_afae03d8d4a8b985c014c95b4b2532166}\label{main_8c_afae03d8d4a8b985c014c95b4b2532166}} 
+\index{main.c@{main.c}!command\_thread\_data@{command\_thread\_data}}
+\index{command\_thread\_data@{command\_thread\_data}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{command\_thread\_data}{command\_thread\_data}}
+{\footnotesize\ttfamily struct k\+\_\+thread command\+\_\+thread\+\_\+data\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{main_8c_a6df6a0034fedb139edf737a36a457b51}\label{main_8c_a6df6a0034fedb139edf737a36a457b51}} 
+\index{main.c@{main.c}!input\_thread\_data@{input\_thread\_data}}
+\index{input\_thread\_data@{input\_thread\_data}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{input\_thread\_data}{input\_thread\_data}}
+{\footnotesize\ttfamily struct k\+\_\+thread input\+\_\+thread\+\_\+data\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{main_8c_a7f0d6b28326bc4495dba14929e504845}\label{main_8c_a7f0d6b28326bc4495dba14929e504845}} 
+\index{main.c@{main.c}!output\_thread\_data@{output\_thread\_data}}
+\index{output\_thread\_data@{output\_thread\_data}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{output\_thread\_data}{output\_thread\_data}}
+{\footnotesize\ttfamily struct k\+\_\+thread output\+\_\+thread\+\_\+data\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{main_8c_aab662f1a7f7a579509728abaf49b7dcf}\label{main_8c_aab662f1a7f7a579509728abaf49b7dcf}} 
+\index{main.c@{main.c}!siggen\_thread\_data@{siggen\_thread\_data}}
+\index{siggen\_thread\_data@{siggen\_thread\_data}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{siggen\_thread\_data}{siggen\_thread\_data}}
+{\footnotesize\ttfamily struct k\+\_\+thread siggen\+\_\+thread\+\_\+data\hspace{0.3cm}{\ttfamily [static]}}
+

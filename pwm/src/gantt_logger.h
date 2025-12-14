@@ -4,90 +4,84 @@
 #include <zephyr/kernel.h>
 #include <stdbool.h>
 
+/**
+ * @file gantt_logger.h
+ * @brief Low-Overhead Lock-Free Logger for Gantt Chart generation.
+ * * This module records thread execution events (START/END) into a 
+ * circular buffer (Ring Buffer) using atomic operations.
+ * * @note This implementation is "Lock-Free" to ensure that High-Priority
+ * Real-Time threads (like SigGen) are NEVER blocked by logging operations.
+ */
+
+/* --- CONFIGURATION --- */
+#define GANTT_LOG_BUFFER_SIZE 512   /**< Buffer size (Power of 2 for optimization) */
+#define GANTT_MAX_THREAD_NAME 16    /**< Max chars for thread name */
+
+/**
+ * @brief Event Types for Gantt Chart.
+ */
+typedef enum {
+    GANTT_EVENT_START = 0,  /**< Thread started processing (CPU busy) */
+    GANTT_EVENT_END   = 1   /**< Thread finished processing (Yield/Sleep) */
+} gantt_event_type_t;
+
+/**
+ * @brief Event Structure (Optimized for memory alignment).
+ * Size: 8 bytes per event.
+ */
+typedef struct {
+    uint32_t timestamp_us;  /**< Timestamp in microseconds */
+    uint8_t  thread_id;     /**< Unique Thread ID */
+    uint8_t  event_type;    /**< START or END */
+    uint16_t reserved;      /**< Padding */
+} gantt_event_t;
+
 /* ============================================================================
- * LOCK-FREE GANTT CHART LOGGER
- * ============================================================================
- * Este módulo implementa logging de eventos de thread SEM MUTEXES.
- * 
- * PRINCÍPIO DE FUNCIONAMENTO:
- * - Ring buffer atómico (escrita lock-free)
- * - Apenas timestamps e IDs (operação < 10 ciclos CPU)
- * - Thread de baixa prioridade faz flush para ficheiro/UART
- * - Threads RT nunca bloqueiam
+ * API FUNCTIONS
  * ============================================================================
  */
 
-/* --- CONFIGURAÇÃO --- */
-#define GANTT_LOG_BUFFER_SIZE 512   // Deve ser potência de 2
-#define GANTT_MAX_THREAD_NAME 16
-
-/* --- TIPOS DE EVENTOS --- */
-typedef enum {
-    GANTT_EVENT_START = 0,
-    GANTT_EVENT_END   = 1
-} gantt_event_type_t;
-
-/* --- ESTRUTURA DE EVENTO (8 bytes, cache-line friendly) --- */
-typedef struct {
-    uint32_t timestamp_us;           // Timestamp em microsegundos
-    uint8_t  thread_id;              // ID da thread (0-255)
-    uint8_t  event_type;             // START ou END
-    uint16_t reserved;               // Padding para alinhamento
-} gantt_event_t;
-
-/* --- API PÚBLICA --- */
-
 /**
- * @brief Inicializa o sistema de logging Gantt
- * @return 0 em sucesso, negativo em erro
+ * @brief Initializes the Logger subsystem.
+ * Resets ring buffer indices and registers.
+ * @return 0 on success.
  */
 int gantt_logger_init(void);
 
 /**
- * @brief Regista uma thread para logging
- * @param thread_name Nome da thread (máx. 15 chars)
- * @return ID atribuído à thread (usar em gantt_log_event)
+ * @brief Registers a thread for logging.
+ * * Assigns a unique ID to the thread name for efficient logging.
+ * * @param thread_name Human-readable name (e.g., "T_SigGen").
+ * @return Assigned Thread ID (uint8_t).
  */
 uint8_t gantt_register_thread(const char *thread_name);
 
 /**
- * @brief Regista evento de thread (LOCK-FREE, não bloqueia!)
- * @param thread_id ID obtido em gantt_register_thread()
- * @param event_type GANTT_EVENT_START ou GANTT_EVENT_END
- * 
- * NOTA CRÍTICA: Esta função NUNCA bloqueia. Se o buffer estiver cheio,
- * o evento é descartado silenciosamente (melhor perder um evento
- * do que violar garantias de tempo real).
+ * @brief Logs a thread event (Critical Path).
+ * * This function is LOCK-FREE and generic. It uses atomic_inc to
+ * reserve space in the ring buffer.
+ * If the buffer is full, the event is silently dropped to preserve system timing.
+ * * @param thread_id ID obtained from gantt_register_thread().
+ * @param event_type GANTT_EVENT_START or GANTT_EVENT_END.
  */
 void gantt_log_event(uint8_t thread_id, gantt_event_type_t event_type);
 
 /**
- * @brief Inicia thread de background que faz dump dos logs
- * Deve ser chamada APÓS todas as threads RT estarem criadas.
+ * @brief Controls the Logging Output.
+ * * Used to enable/disable the stream of CSV data to UART.
+ * * @param enable true to start sending data, false to silence UART.
  */
-
 void gantt_set_enabled(bool enable);
 
-
+/**
+ * @brief Starts the background worker thread.
+ * * This thread runs at Low Priority to offload data from the ring buffer
+ * to the UART interface without disturbing Real-Time tasks.
+ */
 void gantt_start_logger_thread(void);
 
-/* --- MACROS DE CONVENIÊNCIA --- */
-
-/**
- * Uso típico dentro de uma thread RT:
- * 
- * void my_rt_thread_entry(void) {
- *     uint8_t my_id = gantt_register_thread("MySigGen");
- *     
- *     while(1) {
- *         GANTT_LOG_START(my_id);
- *         // ... trabalho da thread ...
- *         GANTT_LOG_END(my_id);
- *         k_msleep(period);
- *     }
- * }
- */
-#define GANTT_LOG_START(thread_id) gantt_log_event(thread_id, GANTT_EVENT_START)
-#define GANTT_LOG_END(thread_id)   gantt_log_event(thread_id, GANTT_EVENT_END)
+/* --- MACROS --- */
+#define GANTT_LOG_START(id) gantt_log_event(id, GANTT_EVENT_START)
+#define GANTT_LOG_END(id)   gantt_log_event(id, GANTT_EVENT_END)
 
 #endif // GANTT_LOGGER_H

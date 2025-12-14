@@ -1,0 +1,242 @@
+\hypertarget{input__thread_8c}{}\doxysection{src/input\+\_\+thread.c File Reference}
+\label{input__thread_8c}\index{src/input\_thread.c@{src/input\_thread.c}}
+{\ttfamily \#include \char`\"{}input\+\_\+thread.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}rtdb.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}gantt\+\_\+logger.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$zephyr/drivers/gpio.\+h$>$}\newline
+{\ttfamily \#include $<$zephyr/sys/printk.\+h$>$}\newline
+Include dependency graph for input\+\_\+thread.\+c\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{input__thread_8c__incl}
+\end{center}
+\end{figure}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{input__thread_8c_a9187d80e9f0cccd5ba36578a9bcf9d10}{K\+\_\+\+SEM\+\_\+\+DEFINE}} (input\+\_\+sem, 0, 1)
+\item 
+void \mbox{\hyperlink{input__thread_8c_ac6669d7c99fdc1c75b2f0bfd1550cc02}{button\+\_\+handler}} (const struct device $\ast$dev, struct gpio\+\_\+callback $\ast$cb, uint32\+\_\+t pins)
+\item 
+void \mbox{\hyperlink{input__thread_8c_a8c19a5521d09bfe93a251ee110954d79}{handle\+\_\+but1}} (void)
+\item 
+void \mbox{\hyperlink{input__thread_8c_a9589b28d797dc4e7f26824a2cd1561b2}{handle\+\_\+but2}} (void)
+\item 
+void \mbox{\hyperlink{input__thread_8c_a29b23565e071f6d01706bbe9c0805dba}{handle\+\_\+but3}} (void)
+\item 
+void \mbox{\hyperlink{input__thread_8c_a7a4ae636121b43febe55603fca62c956}{handle\+\_\+but4}} (void)
+\item 
+int \mbox{\hyperlink{input__thread_8c_a958d9dd5a2a52ccf8924a477609dec0e}{configure\+\_\+button}} (const struct gpio\+\_\+dt\+\_\+spec $\ast$but)
+\item 
+void \mbox{\hyperlink{input__thread_8c_ade1dff01707e76f7dc1b91150379d2e6}{input\+\_\+thread\+\_\+entry}} (void $\ast$p1, void $\ast$p2, void $\ast$p3)
+\begin{DoxyCompactList}\small\item\em Entry point for the Input Processing Thread. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+static const struct gpio\+\_\+dt\+\_\+spec \mbox{\hyperlink{input__thread_8c_a89df3f2ab311d6cd87fd9ae30aad48b6}{but1}} = GPIO\+\_\+\+DT\+\_\+\+SPEC\+\_\+\+GET(DT\+\_\+\+ALIAS(but1), gpios)
+\item 
+static const struct gpio\+\_\+dt\+\_\+spec \mbox{\hyperlink{input__thread_8c_a6aafdfd062792682acf1577ad114f37b}{but2}} = GPIO\+\_\+\+DT\+\_\+\+SPEC\+\_\+\+GET(DT\+\_\+\+ALIAS(but2), gpios)
+\item 
+static const struct gpio\+\_\+dt\+\_\+spec \mbox{\hyperlink{input__thread_8c_a452950bb4a37a37b7662e1a6f07ec166}{but3}} = GPIO\+\_\+\+DT\+\_\+\+SPEC\+\_\+\+GET(DT\+\_\+\+ALIAS(but3), gpios)
+\item 
+static const struct gpio\+\_\+dt\+\_\+spec \mbox{\hyperlink{input__thread_8c_a816859aba1ffd2ef09ad34184be6ab76}{but4}} = GPIO\+\_\+\+DT\+\_\+\+SPEC\+\_\+\+GET(DT\+\_\+\+ALIAS(but4), gpios)
+\item 
+static struct gpio\+\_\+callback \mbox{\hyperlink{input__thread_8c_af87c152961b80d006d89268229eccd00}{button\+\_\+cb\+\_\+data}}
+\item 
+static volatile uint32\+\_\+t \mbox{\hyperlink{input__thread_8c_a9f632dbf9f15f320d6ade0209ca57379}{button\+\_\+event\+\_\+mask}} = 0
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{input__thread_8c_ac6669d7c99fdc1c75b2f0bfd1550cc02}\label{input__thread_8c_ac6669d7c99fdc1c75b2f0bfd1550cc02}} 
+\index{input\_thread.c@{input\_thread.c}!button\_handler@{button\_handler}}
+\index{button\_handler@{button\_handler}!input\_thread.c@{input\_thread.c}}
+\doxysubsubsection{\texorpdfstring{button\_handler()}{button\_handler()}}
+{\footnotesize\ttfamily void button\+\_\+handler (\begin{DoxyParamCaption}\item[{const struct device $\ast$}]{dev,  }\item[{struct gpio\+\_\+callback $\ast$}]{cb,  }\item[{uint32\+\_\+t}]{pins }\end{DoxyParamCaption})}
+
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{input__thread_8c_ac6669d7c99fdc1c75b2f0bfd1550cc02_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{input__thread_8c_a958d9dd5a2a52ccf8924a477609dec0e}\label{input__thread_8c_a958d9dd5a2a52ccf8924a477609dec0e}} 
+\index{input\_thread.c@{input\_thread.c}!configure\_button@{configure\_button}}
+\index{configure\_button@{configure\_button}!input\_thread.c@{input\_thread.c}}
+\doxysubsubsection{\texorpdfstring{configure\_button()}{configure\_button()}}
+{\footnotesize\ttfamily int configure\+\_\+button (\begin{DoxyParamCaption}\item[{const struct gpio\+\_\+dt\+\_\+spec $\ast$}]{but }\end{DoxyParamCaption})}
+
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{input__thread_8c_a958d9dd5a2a52ccf8924a477609dec0e_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{input__thread_8c_a8c19a5521d09bfe93a251ee110954d79}\label{input__thread_8c_a8c19a5521d09bfe93a251ee110954d79}} 
+\index{input\_thread.c@{input\_thread.c}!handle\_but1@{handle\_but1}}
+\index{handle\_but1@{handle\_but1}!input\_thread.c@{input\_thread.c}}
+\doxysubsubsection{\texorpdfstring{handle\_but1()}{handle\_but1()}}
+{\footnotesize\ttfamily void handle\+\_\+but1 (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=309pt]{input__thread_8c_a8c19a5521d09bfe93a251ee110954d79_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{input__thread_8c_a8c19a5521d09bfe93a251ee110954d79_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{input__thread_8c_a9589b28d797dc4e7f26824a2cd1561b2}\label{input__thread_8c_a9589b28d797dc4e7f26824a2cd1561b2}} 
+\index{input\_thread.c@{input\_thread.c}!handle\_but2@{handle\_but2}}
+\index{handle\_but2@{handle\_but2}!input\_thread.c@{input\_thread.c}}
+\doxysubsubsection{\texorpdfstring{handle\_but2()}{handle\_but2()}}
+{\footnotesize\ttfamily void handle\+\_\+but2 (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=309pt]{input__thread_8c_a9589b28d797dc4e7f26824a2cd1561b2_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{input__thread_8c_a9589b28d797dc4e7f26824a2cd1561b2_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{input__thread_8c_a29b23565e071f6d01706bbe9c0805dba}\label{input__thread_8c_a29b23565e071f6d01706bbe9c0805dba}} 
+\index{input\_thread.c@{input\_thread.c}!handle\_but3@{handle\_but3}}
+\index{handle\_but3@{handle\_but3}!input\_thread.c@{input\_thread.c}}
+\doxysubsubsection{\texorpdfstring{handle\_but3()}{handle\_but3()}}
+{\footnotesize\ttfamily void handle\+\_\+but3 (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=321pt]{input__thread_8c_a29b23565e071f6d01706bbe9c0805dba_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{input__thread_8c_a29b23565e071f6d01706bbe9c0805dba_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{input__thread_8c_a7a4ae636121b43febe55603fca62c956}\label{input__thread_8c_a7a4ae636121b43febe55603fca62c956}} 
+\index{input\_thread.c@{input\_thread.c}!handle\_but4@{handle\_but4}}
+\index{handle\_but4@{handle\_but4}!input\_thread.c@{input\_thread.c}}
+\doxysubsubsection{\texorpdfstring{handle\_but4()}{handle\_but4()}}
+{\footnotesize\ttfamily void handle\+\_\+but4 (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=309pt]{input__thread_8c_a7a4ae636121b43febe55603fca62c956_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{input__thread_8c_a7a4ae636121b43febe55603fca62c956_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{input__thread_8c_ade1dff01707e76f7dc1b91150379d2e6}\label{input__thread_8c_ade1dff01707e76f7dc1b91150379d2e6}} 
+\index{input\_thread.c@{input\_thread.c}!input\_thread\_entry@{input\_thread\_entry}}
+\index{input\_thread\_entry@{input\_thread\_entry}!input\_thread.c@{input\_thread.c}}
+\doxysubsubsection{\texorpdfstring{input\_thread\_entry()}{input\_thread\_entry()}}
+{\footnotesize\ttfamily void input\+\_\+thread\+\_\+entry (\begin{DoxyParamCaption}\item[{void $\ast$}]{p1,  }\item[{void $\ast$}]{p2,  }\item[{void $\ast$}]{p3 }\end{DoxyParamCaption})}
+
+
+
+Entry point for the Input Processing Thread. 
+
+
+\begin{DoxyItemize}
+\item This thread sleeps on a semaphore waiting for GPIO interrupts. When a button is pressed, it wakes up, debounces the signal, updates the RTDB state, and logs the event to the Gantt chart. 
+\end{DoxyItemize}Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{input__thread_8c_ade1dff01707e76f7dc1b91150379d2e6_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=266pt]{input__thread_8c_ade1dff01707e76f7dc1b91150379d2e6_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{input__thread_8c_a9187d80e9f0cccd5ba36578a9bcf9d10}\label{input__thread_8c_a9187d80e9f0cccd5ba36578a9bcf9d10}} 
+\index{input\_thread.c@{input\_thread.c}!K\_SEM\_DEFINE@{K\_SEM\_DEFINE}}
+\index{K\_SEM\_DEFINE@{K\_SEM\_DEFINE}!input\_thread.c@{input\_thread.c}}
+\doxysubsubsection{\texorpdfstring{K\_SEM\_DEFINE()}{K\_SEM\_DEFINE()}}
+{\footnotesize\ttfamily K\+\_\+\+SEM\+\_\+\+DEFINE (\begin{DoxyParamCaption}\item[{input\+\_\+sem}]{,  }\item[{0}]{,  }\item[{1}]{ }\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{input__thread_8c_a89df3f2ab311d6cd87fd9ae30aad48b6}\label{input__thread_8c_a89df3f2ab311d6cd87fd9ae30aad48b6}} 
+\index{input\_thread.c@{input\_thread.c}!but1@{but1}}
+\index{but1@{but1}!input\_thread.c@{input\_thread.c}}
+\doxysubsubsection{\texorpdfstring{but1}{but1}}
+{\footnotesize\ttfamily const struct gpio\+\_\+dt\+\_\+spec but1 = GPIO\+\_\+\+DT\+\_\+\+SPEC\+\_\+\+GET(DT\+\_\+\+ALIAS(but1), gpios)\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{input__thread_8c_a6aafdfd062792682acf1577ad114f37b}\label{input__thread_8c_a6aafdfd062792682acf1577ad114f37b}} 
+\index{input\_thread.c@{input\_thread.c}!but2@{but2}}
+\index{but2@{but2}!input\_thread.c@{input\_thread.c}}
+\doxysubsubsection{\texorpdfstring{but2}{but2}}
+{\footnotesize\ttfamily const struct gpio\+\_\+dt\+\_\+spec but2 = GPIO\+\_\+\+DT\+\_\+\+SPEC\+\_\+\+GET(DT\+\_\+\+ALIAS(but2), gpios)\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{input__thread_8c_a452950bb4a37a37b7662e1a6f07ec166}\label{input__thread_8c_a452950bb4a37a37b7662e1a6f07ec166}} 
+\index{input\_thread.c@{input\_thread.c}!but3@{but3}}
+\index{but3@{but3}!input\_thread.c@{input\_thread.c}}
+\doxysubsubsection{\texorpdfstring{but3}{but3}}
+{\footnotesize\ttfamily const struct gpio\+\_\+dt\+\_\+spec but3 = GPIO\+\_\+\+DT\+\_\+\+SPEC\+\_\+\+GET(DT\+\_\+\+ALIAS(but3), gpios)\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{input__thread_8c_a816859aba1ffd2ef09ad34184be6ab76}\label{input__thread_8c_a816859aba1ffd2ef09ad34184be6ab76}} 
+\index{input\_thread.c@{input\_thread.c}!but4@{but4}}
+\index{but4@{but4}!input\_thread.c@{input\_thread.c}}
+\doxysubsubsection{\texorpdfstring{but4}{but4}}
+{\footnotesize\ttfamily const struct gpio\+\_\+dt\+\_\+spec but4 = GPIO\+\_\+\+DT\+\_\+\+SPEC\+\_\+\+GET(DT\+\_\+\+ALIAS(but4), gpios)\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{input__thread_8c_af87c152961b80d006d89268229eccd00}\label{input__thread_8c_af87c152961b80d006d89268229eccd00}} 
+\index{input\_thread.c@{input\_thread.c}!button\_cb\_data@{button\_cb\_data}}
+\index{button\_cb\_data@{button\_cb\_data}!input\_thread.c@{input\_thread.c}}
+\doxysubsubsection{\texorpdfstring{button\_cb\_data}{button\_cb\_data}}
+{\footnotesize\ttfamily struct gpio\+\_\+callback button\+\_\+cb\+\_\+data\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{input__thread_8c_a9f632dbf9f15f320d6ade0209ca57379}\label{input__thread_8c_a9f632dbf9f15f320d6ade0209ca57379}} 
+\index{input\_thread.c@{input\_thread.c}!button\_event\_mask@{button\_event\_mask}}
+\index{button\_event\_mask@{button\_event\_mask}!input\_thread.c@{input\_thread.c}}
+\doxysubsubsection{\texorpdfstring{button\_event\_mask}{button\_event\_mask}}
+{\footnotesize\ttfamily volatile uint32\+\_\+t button\+\_\+event\+\_\+mask = 0\hspace{0.3cm}{\ttfamily [static]}}
+

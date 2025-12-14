@@ -1,0 +1,5 @@
+<map id="gantt_start_logger_thread" name="gantt_start_logger_thread">
+<area shape="rect" id="node1" title="Starts the background worker thread." alt="" coords="5,5,147,47"/>
+<area shape="rect" id="node2" href="$gantt__logger_8c.html#aaf92480bcccdec3d0515430ab15c7b76" title=" " alt="" coords="195,13,348,39"/>
+<area shape="rect" id="node3" href="$gantt__logger_8c.html#a45e03ee523c9097bfd5483b66eddbe81" title=" " alt="" coords="396,13,513,39"/>
+</map>

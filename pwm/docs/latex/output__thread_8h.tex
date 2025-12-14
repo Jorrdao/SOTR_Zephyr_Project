@@ -1,0 +1,93 @@
+\hypertarget{output__thread_8h}{}\doxysection{src/output\+\_\+thread.h File Reference}
+\label{output__thread_8h}\index{src/output\_thread.h@{src/output\_thread.h}}
+
+
+Visual Feedback (LED) Interface.  
+
+
+This graph shows which files directly or indirectly include this file\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=276pt]{output__thread_8h__dep__incl}
+\end{center}
+\end{figure}
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{output__thread_8h_a50175bea6dd95323954ec3dfae81fa22}{OUTPUT\+\_\+\+THREAD\+\_\+\+STACK\+\_\+\+SIZE}}~2048
+\begin{DoxyCompactList}\small\item\em Stack size. Minimal requirements. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{output__thread_8h_aa547fd1dad870b3a732cc7d49fa58ae9}{OUTPUT\+\_\+\+THREAD\+\_\+\+PRIORITY}}~10
+\begin{DoxyCompactList}\small\item\em Thread Priority (10). Low Priority. This is a \char`\"{}\+Soft Real-\/\+Time\char`\"{} task. If it lags by 50ms, the human eye won\textquotesingle{}t notice, so it yields CPU to everything else. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{output__thread_8h_aa0507a46d481871c38a22bbcf90b1b38}{output\+\_\+thread\+\_\+entry}} (void $\ast$p1, void $\ast$p2, void $\ast$p3)
+\begin{DoxyCompactList}\small\item\em Output Thread Entry Point. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Visual Feedback (LED) Interface. 
+
+
+\begin{DoxyItemize}
+\item Updates the physical LEDs on the board to reflect the internal state of the system (Waveform type, Output ON/\+OFF). 
+\end{DoxyItemize}
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\Hypertarget{output__thread_8h_aa547fd1dad870b3a732cc7d49fa58ae9}\label{output__thread_8h_aa547fd1dad870b3a732cc7d49fa58ae9}} 
+\index{output\_thread.h@{output\_thread.h}!OUTPUT\_THREAD\_PRIORITY@{OUTPUT\_THREAD\_PRIORITY}}
+\index{OUTPUT\_THREAD\_PRIORITY@{OUTPUT\_THREAD\_PRIORITY}!output\_thread.h@{output\_thread.h}}
+\doxysubsubsection{\texorpdfstring{OUTPUT\_THREAD\_PRIORITY}{OUTPUT\_THREAD\_PRIORITY}}
+{\footnotesize\ttfamily \#define OUTPUT\+\_\+\+THREAD\+\_\+\+PRIORITY~10}
+
+
+
+Thread Priority (10). Low Priority. This is a \char`\"{}\+Soft Real-\/\+Time\char`\"{} task. If it lags by 50ms, the human eye won\textquotesingle{}t notice, so it yields CPU to everything else. 
+
+
+\begin{DoxyItemize}
+\item 
+\end{DoxyItemize}\mbox{\Hypertarget{output__thread_8h_a50175bea6dd95323954ec3dfae81fa22}\label{output__thread_8h_a50175bea6dd95323954ec3dfae81fa22}} 
+\index{output\_thread.h@{output\_thread.h}!OUTPUT\_THREAD\_STACK\_SIZE@{OUTPUT\_THREAD\_STACK\_SIZE}}
+\index{OUTPUT\_THREAD\_STACK\_SIZE@{OUTPUT\_THREAD\_STACK\_SIZE}!output\_thread.h@{output\_thread.h}}
+\doxysubsubsection{\texorpdfstring{OUTPUT\_THREAD\_STACK\_SIZE}{OUTPUT\_THREAD\_STACK\_SIZE}}
+{\footnotesize\ttfamily \#define OUTPUT\+\_\+\+THREAD\+\_\+\+STACK\+\_\+\+SIZE~2048}
+
+
+
+Stack size. Minimal requirements. 
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{output__thread_8h_aa0507a46d481871c38a22bbcf90b1b38}\label{output__thread_8h_aa0507a46d481871c38a22bbcf90b1b38}} 
+\index{output\_thread.h@{output\_thread.h}!output\_thread\_entry@{output\_thread\_entry}}
+\index{output\_thread\_entry@{output\_thread\_entry}!output\_thread.h@{output\_thread.h}}
+\doxysubsubsection{\texorpdfstring{output\_thread\_entry()}{output\_thread\_entry()}}
+{\footnotesize\ttfamily void output\+\_\+thread\+\_\+entry (\begin{DoxyParamCaption}\item[{void $\ast$}]{p1,  }\item[{void $\ast$}]{p2,  }\item[{void $\ast$}]{p3 }\end{DoxyParamCaption})}
+
+
+
+Output Thread Entry Point. 
+
+
+\begin{DoxyItemize}
+\item Periodically polls the RTDB state and updates GPIO pins. Rate limited to avoid consuming unnecessary CPU cycles. 
+\end{DoxyItemize}Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{output__thread_8h_aa0507a46d481871c38a22bbcf90b1b38_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=273pt]{output__thread_8h_aa0507a46d481871c38a22bbcf90b1b38_icgraph}
+\end{center}
+\end{figure}

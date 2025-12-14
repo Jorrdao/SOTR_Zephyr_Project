@@ -1,100 +1,128 @@
-// input_thread.c
-
 #include "input_thread.h"
 #include "rtdb.h"
+#include "gantt_logger.h"
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/sys/printk.h>
-#include "gantt_logger.h" 
-// Definição do nó do BUT1
-#define BUT1_NODE DT_ALIAS(but1) 
-static const struct gpio_dt_spec but1_spec = GPIO_DT_SPEC_GET(BUT1_NODE, gpios);
 
-// Semáforo para notificar a thread quando o BUT1 é pressionado
-K_SEM_DEFINE(but1_sem, 0, 1); 
+/* --- DEFINIÇÕES DOS BOTÕES (Aliases do DeviceTree) --- */
+static const struct gpio_dt_spec but1 = GPIO_DT_SPEC_GET(DT_ALIAS(but1), gpios);
+static const struct gpio_dt_spec but2 = GPIO_DT_SPEC_GET(DT_ALIAS(but2), gpios);
+static const struct gpio_dt_spec but3 = GPIO_DT_SPEC_GET(DT_ALIAS(but3), gpios);
+static const struct gpio_dt_spec but4 = GPIO_DT_SPEC_GET(DT_ALIAS(but4), gpios);
 
-// Estrutura de callback deve ser declarada estaticamente
-static struct gpio_callback but1_cb_data;
+/* --- ESTRUTURA DE CALLBACK --- */
+static struct gpio_callback button_cb_data;
 
-// Callback de Interrupção para o BUT1
-// CORRETO:
-void but1_handler(const struct device *dev, struct gpio_callback *cb, uint32_t pins)
+/* --- SEMÁFORO E FLAG DE EVENTOS --- */
+K_SEM_DEFINE(input_sem, 0, 1);
+static volatile uint32_t button_event_mask = 0;
+
+/* --- HANDLER DE INTERRUPÇÃO (ISR) --- */
+void button_handler(const struct device *dev, struct gpio_callback *cb, uint32_t pins)
 {
-    k_sem_give(&but1_sem);
+    // Identificar qual botão foi pressionado e guardar na máscara
+    if (pins & BIT(but1.pin)) { button_event_mask |= BIT(0); }
+    if (pins & BIT(but2.pin)) { button_event_mask |= BIT(1); }
+    if (pins & BIT(but3.pin)) { button_event_mask |= BIT(2); }
+    if (pins & BIT(but4.pin)) { button_event_mask |= BIT(3); }
+
+    // Acordar a thread
+    k_sem_give(&input_sem);
 }
 
-// Lógica de alternar o tipo de onda
-static void handle_wave_type_toggle(void)
-{
-    rtdb_state_t current_state = rtdb_get_state_copy();
-    wave_type_t new_type;
+/* --- LÓGICA DOS BOTÕES --- */
+
+// BUT1: Mudar Tipo de Onda (Square -> Triangle -> Sine)
+void handle_but1(void) {
+    rtdb_state_t s = rtdb_get_state_copy();
+    wave_type_t next = WAVE_SQUARE;
     
-    // Lógica de alternância: Square -> Triangle -> Sine -> Square
-    switch (current_state.wave_type) {
-        case WAVE_SQUARE:
-            new_type = WAVE_TRIANGLE;
-            break;
-        case WAVE_TRIANGLE:
-            new_type = WAVE_SINE;
-            break;
-        case WAVE_SINE:
-            new_type = WAVE_SQUARE;
-            break;
-        default:
-            new_type = WAVE_SQUARE; 
-    }
+    if (s.wave_type == WAVE_SQUARE) next = WAVE_TRIANGLE;
+    else if (s.wave_type == WAVE_TRIANGLE) next = WAVE_SINE;
+    else next = WAVE_SQUARE;
     
-    // Atualiza o estado no RTDB, protegido pelo Mutex.
-    rtdb_set_wave_type(new_type);
-    printk("Input Thread: Wave type toggled to %d\n", new_type);
+    rtdb_set_wave_type(next);
+    printk("[INPUT] Wave Type changed to %d\n", next);
 }
 
+// BUT2: Mudar Frequência (+10Hz, wrap 90->10)
+void handle_but2(void) {
+    rtdb_state_t s = rtdb_get_state_copy();
+    int next_freq = s.frequency_hz + 10;
+    if (next_freq > 90) next_freq = 10; // Volta a 10 se passar de 90
+    
+    rtdb_set_frequency(next_freq);
+    printk("[INPUT] Frequency changed to %d Hz\n", next_freq);
+}
 
+// BUT3: Toggle Output (ON/OFF)
+void handle_but3(void) {
+    rtdb_state_t s = rtdb_get_state_copy();
+    bool next_state = !s.output_active;
+    
+    rtdb_set_output_active(next_state);
+    printk("[INPUT] Output %s\n", next_state ? "ON" : "OFF");
+}
+
+// BUT4: Mudar Amplitude (+0.5V, wrap 2.5 -> 0)
+void handle_but4(void) {
+    rtdb_state_t s = rtdb_get_state_copy();
+    float next_amp = s.amplitude_v + 0.5f;
+    if (next_amp > 2.5f) next_amp = 0.0f; // Volta a 0 se passar de 2.5
+    
+    rtdb_set_amplitude(next_amp);
+    // Print float com casting para int para evitar erros se printf float não estiver ativo
+    printk("[INPUT] Amplitude changed to %d.%d V\n", (int)next_amp, (int)((next_amp - (int)next_amp)*10));
+}
+
+/* --- FUNÇÃO AUXILIAR DE CONFIGURAÇÃO --- */
+int configure_button(const struct gpio_dt_spec *but) {
+    if (!device_is_ready(but->port)) return -1;
+    int ret = gpio_pin_configure_dt(but, GPIO_INPUT | GPIO_PULL_UP);
+    if (ret < 0) return ret;
+    ret = gpio_pin_interrupt_configure_dt(but, GPIO_INT_EDGE_TO_ACTIVE);
+    return ret;
+}
+
+/* --- THREAD PRINCIPAL --- */
 void input_thread_entry(void *p1, void *p2, void *p3) {
     uint8_t gantt_id = gantt_register_thread("T_Input");
-    // 1. Configuração do Pino (Verificação e Modo)
-    if (!device_is_ready(but1_spec.port)) {
-        printk("Erro: BUT1 device not ready.\n");
+
+    // 1. Configurar Hardware
+    if (configure_button(&but1) < 0 || configure_button(&but2) < 0 ||
+        configure_button(&but3) < 0 || configure_button(&but4) < 0) {
+        printk("Error configuring buttons!\n");
         return;
     }
+
+    // 2. Registar Callbacks (Uma função para todos)
+    gpio_init_callback(&button_cb_data, button_handler, 
+                       BIT(but1.pin) | BIT(but2.pin) | BIT(but3.pin) | BIT(but4.pin));
     
-    // 1.1 Configurar o pino como entrada
-    // O GPIO_PULL_UP é fundamental para botões ligados a GND.
-    int ret = gpio_pin_configure_dt(&but1_spec, GPIO_INPUT | GPIO_PULL_UP);
-    if (ret < 0) {
-        printk("Erro: Falha na configuracao do BUT1 (%d)\n", ret);
-        return;
-    }
+    gpio_add_callback(but1.port, &button_cb_data);
+    // Assumindo que estão na mesma porta (Port 0). Se estiverem em portas diferentes,
+    // precisarias de callbacks separados, mas na nRF52-DK estão todos na Port 0.
 
-    // 1.2 Configurar o pino para gerar interrupção (borda ativa é a descida, pois PULL_UP está ON)
-    ret = gpio_pin_interrupt_configure_dt(&but1_spec, GPIO_INT_EDGE_TO_ACTIVE);
-    if (ret < 0) {
-        printk("Erro: Falha na configuracao da interrupcao (%d)\n", ret);
-        return;
-    }
-
-    // 1.3 Inicializar a estrutura de callback
-    // Usa but1_cb_data, a estrutura estática que declaramos.
-    gpio_init_callback(&but1_cb_data, 
-                       but1_handler, 
-                       BIT(but1_spec.pin));
-
-    // 1.4 Adicionar o handler à interrupção
-    gpio_add_callback(but1_spec.port, &but1_cb_data);
-
-
-    printk("Input Thread Initialized. Waiting for BUT1 press...\n");
+    printk("Input Thread ready. Buttons 1-4 active.\n");
 
     while (1) {
-        // Espera de forma síncrona pelo sinal do semáforo, liberando a CPU para outras threads.
-        k_sem_take(&but1_sem, K_FOREVER);
+        // Espera por interrupção
+        k_sem_take(&input_sem, K_FOREVER);
+
+        // Debounce simples (espera 50ms para o sinal estabilizar)
+        k_msleep(50);
+
         GANTT_LOG_START(gantt_id);
-        // Debugging Output
-        //printk("[%u] INPUT  (Prio 5): Botão detetado. A processar...\n", k_uptime_get_32());
-        
-        
-        // Processar o evento fora do contexto de interrupção (ISR)
-        handle_wave_type_toggle();
-        GANTT_LOG_START(gantt_id);
-        // TODO: Adicionar lógica de anti-debounce (k_msleep curto ou timer) se necessário.
+
+        // Verificar flags atómicas e limpar
+        uint32_t events = button_event_mask;
+        button_event_mask = 0; // Reset flags
+
+        if (events & BIT(0)) handle_but1();
+        if (events & BIT(1)) handle_but2();
+        if (events & BIT(2)) handle_but3();
+        if (events & BIT(3)) handle_but4();
+
+        GANTT_LOG_END(gantt_id);
     }
 }

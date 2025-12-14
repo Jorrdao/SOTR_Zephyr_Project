@@ -1,0 +1,162 @@
+\hypertarget{command__thread_8c}{}\doxysection{src/command\+\_\+thread.c File Reference}
+\label{command__thread_8c}\index{src/command\_thread.c@{src/command\_thread.c}}
+{\ttfamily \#include \char`\"{}command\+\_\+thread.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}rtdb.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}gantt\+\_\+logger.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$zephyr/drivers/uart.\+h$>$}\newline
+{\ttfamily \#include $<$zephyr/sys/printk.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \#include $<$ctype.\+h$>$}\newline
+Include dependency graph for command\+\_\+thread.\+c\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{command__thread_8c__incl}
+\end{center}
+\end{figure}
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{command__thread_8c_a8427d0088582c17327e754f5f08c5a56}{CMD\+\_\+\+BUF\+\_\+\+SIZE}}~64
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{command__thread_8c_a42a1882fad5c752ebb8682b7712b778d}{send\+\_\+uart\+\_\+string}} (const char $\ast$str)
+\item 
+uint8\+\_\+t \mbox{\hyperlink{command__thread_8c_a890964b423ab155e5954f590f6373f07}{calculate\+\_\+checksum}} (char $\ast$cmd, int len)
+\item 
+void \mbox{\hyperlink{command__thread_8c_a0f3b1e1abc393f2d98d495f4593ef2ff}{process\+\_\+command}} (char $\ast$full\+\_\+cmd)
+\item 
+void \mbox{\hyperlink{command__thread_8c_af3090a5e77f5079df317164dd19966d0}{command\+\_\+thread\+\_\+entry}} (void $\ast$p1, void $\ast$p2, void $\ast$p3)
+\begin{DoxyCompactList}\small\item\em Command Parser Thread Entry Point. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+static const struct device $\ast$ \mbox{\hyperlink{command__thread_8c_a660f23134aaae43c9ff2c6096fa59342}{uart\+\_\+dev}} = DEVICE\+\_\+\+DT\+\_\+\+GET(DT\+\_\+\+CHOSEN(zephyr\+\_\+console))
+\item 
+static char \mbox{\hyperlink{command__thread_8c_aff9f48820f545d62d00360a9ad8486e2}{rx\+\_\+buf}} \mbox{[}\mbox{\hyperlink{command__thread_8c_a8427d0088582c17327e754f5f08c5a56}{CMD\+\_\+\+BUF\+\_\+\+SIZE}}\mbox{]}
+\item 
+static int \mbox{\hyperlink{command__thread_8c_a428793ba60eea056af3b69b55b1321e9}{rx\+\_\+pos}} = 0
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\Hypertarget{command__thread_8c_a8427d0088582c17327e754f5f08c5a56}\label{command__thread_8c_a8427d0088582c17327e754f5f08c5a56}} 
+\index{command\_thread.c@{command\_thread.c}!CMD\_BUF\_SIZE@{CMD\_BUF\_SIZE}}
+\index{CMD\_BUF\_SIZE@{CMD\_BUF\_SIZE}!command\_thread.c@{command\_thread.c}}
+\doxysubsubsection{\texorpdfstring{CMD\_BUF\_SIZE}{CMD\_BUF\_SIZE}}
+{\footnotesize\ttfamily \#define CMD\+\_\+\+BUF\+\_\+\+SIZE~64}
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{command__thread_8c_a890964b423ab155e5954f590f6373f07}\label{command__thread_8c_a890964b423ab155e5954f590f6373f07}} 
+\index{command\_thread.c@{command\_thread.c}!calculate\_checksum@{calculate\_checksum}}
+\index{calculate\_checksum@{calculate\_checksum}!command\_thread.c@{command\_thread.c}}
+\doxysubsubsection{\texorpdfstring{calculate\_checksum()}{calculate\_checksum()}}
+{\footnotesize\ttfamily uint8\+\_\+t calculate\+\_\+checksum (\begin{DoxyParamCaption}\item[{char $\ast$}]{cmd,  }\item[{int}]{len }\end{DoxyParamCaption})}
+
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{command__thread_8c_a890964b423ab155e5954f590f6373f07_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{command__thread_8c_af3090a5e77f5079df317164dd19966d0}\label{command__thread_8c_af3090a5e77f5079df317164dd19966d0}} 
+\index{command\_thread.c@{command\_thread.c}!command\_thread\_entry@{command\_thread\_entry}}
+\index{command\_thread\_entry@{command\_thread\_entry}!command\_thread.c@{command\_thread.c}}
+\doxysubsubsection{\texorpdfstring{command\_thread\_entry()}{command\_thread\_entry()}}
+{\footnotesize\ttfamily void command\+\_\+thread\+\_\+entry (\begin{DoxyParamCaption}\item[{void $\ast$}]{p1,  }\item[{void $\ast$}]{p2,  }\item[{void $\ast$}]{p3 }\end{DoxyParamCaption})}
+
+
+
+Command Parser Thread Entry Point. 
+
+
+\begin{DoxyItemize}
+\item Implements a polling loop on the UART interface to\+:
+\end{DoxyItemize}
+\begin{DoxyEnumerate}
+\item Assemble incoming characters into packets.
+\item Validate Checksums (Data Integrity).
+\item Update RTDB based on commands (SF, SA, SO).
+\item Control the Gantt Logger state (GL). 
+\end{DoxyEnumerate}Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{command__thread_8c_af3090a5e77f5079df317164dd19966d0_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=290pt]{command__thread_8c_af3090a5e77f5079df317164dd19966d0_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{command__thread_8c_a0f3b1e1abc393f2d98d495f4593ef2ff}\label{command__thread_8c_a0f3b1e1abc393f2d98d495f4593ef2ff}} 
+\index{command\_thread.c@{command\_thread.c}!process\_command@{process\_command}}
+\index{process\_command@{process\_command}!command\_thread.c@{command\_thread.c}}
+\doxysubsubsection{\texorpdfstring{process\_command()}{process\_command()}}
+{\footnotesize\ttfamily void process\+\_\+command (\begin{DoxyParamCaption}\item[{char $\ast$}]{full\+\_\+cmd }\end{DoxyParamCaption})}
+
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{command__thread_8c_a0f3b1e1abc393f2d98d495f4593ef2ff_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{command__thread_8c_a0f3b1e1abc393f2d98d495f4593ef2ff_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{command__thread_8c_a42a1882fad5c752ebb8682b7712b778d}\label{command__thread_8c_a42a1882fad5c752ebb8682b7712b778d}} 
+\index{command\_thread.c@{command\_thread.c}!send\_uart\_string@{send\_uart\_string}}
+\index{send\_uart\_string@{send\_uart\_string}!command\_thread.c@{command\_thread.c}}
+\doxysubsubsection{\texorpdfstring{send\_uart\_string()}{send\_uart\_string()}}
+{\footnotesize\ttfamily void send\+\_\+uart\+\_\+string (\begin{DoxyParamCaption}\item[{const char $\ast$}]{str }\end{DoxyParamCaption})}
+
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{command__thread_8c_a42a1882fad5c752ebb8682b7712b778d_icgraph}
+\end{center}
+\end{figure}
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{command__thread_8c_aff9f48820f545d62d00360a9ad8486e2}\label{command__thread_8c_aff9f48820f545d62d00360a9ad8486e2}} 
+\index{command\_thread.c@{command\_thread.c}!rx\_buf@{rx\_buf}}
+\index{rx\_buf@{rx\_buf}!command\_thread.c@{command\_thread.c}}
+\doxysubsubsection{\texorpdfstring{rx\_buf}{rx\_buf}}
+{\footnotesize\ttfamily char rx\+\_\+buf\mbox{[}\mbox{\hyperlink{command__thread_8c_a8427d0088582c17327e754f5f08c5a56}{CMD\+\_\+\+BUF\+\_\+\+SIZE}}\mbox{]}\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{command__thread_8c_a428793ba60eea056af3b69b55b1321e9}\label{command__thread_8c_a428793ba60eea056af3b69b55b1321e9}} 
+\index{command\_thread.c@{command\_thread.c}!rx\_pos@{rx\_pos}}
+\index{rx\_pos@{rx\_pos}!command\_thread.c@{command\_thread.c}}
+\doxysubsubsection{\texorpdfstring{rx\_pos}{rx\_pos}}
+{\footnotesize\ttfamily int rx\+\_\+pos = 0\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{command__thread_8c_a660f23134aaae43c9ff2c6096fa59342}\label{command__thread_8c_a660f23134aaae43c9ff2c6096fa59342}} 
+\index{command\_thread.c@{command\_thread.c}!uart\_dev@{uart\_dev}}
+\index{uart\_dev@{uart\_dev}!command\_thread.c@{command\_thread.c}}
+\doxysubsubsection{\texorpdfstring{uart\_dev}{uart\_dev}}
+{\footnotesize\ttfamily const struct device$\ast$ uart\+\_\+dev = DEVICE\+\_\+\+DT\+\_\+\+GET(DT\+\_\+\+CHOSEN(zephyr\+\_\+console))\hspace{0.3cm}{\ttfamily [static]}}
+

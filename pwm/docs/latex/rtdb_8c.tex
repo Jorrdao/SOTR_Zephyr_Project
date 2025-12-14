@@ -1,0 +1,198 @@
+\hypertarget{rtdb_8c}{}\doxysection{src/rtdb.c File Reference}
+\label{rtdb_8c}\index{src/rtdb.c@{src/rtdb.c}}
+{\ttfamily \#include \char`\"{}rtdb.\+h\char`\"{}}\newline
+Include dependency graph for rtdb.\+c\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=252pt]{rtdb_8c__incl}
+\end{center}
+\end{figure}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{rtdb_8c_ac270dc538f67bf35c1c5f75d75038a57}{K\+\_\+\+MUTEX\+\_\+\+DEFINE}} (rtdb\+\_\+mutex)
+\item 
+void \mbox{\hyperlink{rtdb_8c_afae46e24b6ccddb292baa4b3f08ab2c3}{rtdb\+\_\+set\+\_\+amplitude}} (float amp\+\_\+v)
+\begin{DoxyCompactList}\small\item\em Sets the signal amplitude. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{rtdb_8c_acd165b37f36ab899443ca5bea3814850}{rtdb\+\_\+set\+\_\+frequency}} (int freq\+\_\+hz)
+\begin{DoxyCompactList}\small\item\em Sets the signal frequency. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{rtdb_8c_ac081c4fd03ad8ed84c4082e70a71321b}{rtdb\+\_\+set\+\_\+output\+\_\+active}} (bool active)
+\begin{DoxyCompactList}\small\item\em Toggles the main output. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{rtdb_8c_aa370e47f038a60de31891a74d0cff6f9}{rtdb\+\_\+set\+\_\+wave\+\_\+type}} (\mbox{\hyperlink{rtdb_8h_ace4881961545fb59dbc8d12eb40ae3db}{wave\+\_\+type\+\_\+t}} new\+\_\+type)
+\begin{DoxyCompactList}\small\item\em Sets the waveform type. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{rtdb_8c_a433b10b73774ee9c3bdd8ca1d95da7b9}{rtdb\+\_\+toggle\+\_\+output\+\_\+status}} ()
+\item 
+\mbox{\hyperlink{structrtdb__state__t}{rtdb\+\_\+state\+\_\+t}} \mbox{\hyperlink{rtdb_8c_a1e2adc1af764150f2612f4acdd702182}{rtdb\+\_\+get\+\_\+state\+\_\+copy}} (void)
+\begin{DoxyCompactList}\small\item\em Gets a consistent copy of the full system state. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+static \mbox{\hyperlink{structrtdb__state__t}{rtdb\+\_\+state\+\_\+t}} \mbox{\hyperlink{rtdb_8c_a018aaa643b434a1cdbb22bc1b597a167}{rtdb\+\_\+current\+\_\+state}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{rtdb_8c_ac270dc538f67bf35c1c5f75d75038a57}\label{rtdb_8c_ac270dc538f67bf35c1c5f75d75038a57}} 
+\index{rtdb.c@{rtdb.c}!K\_MUTEX\_DEFINE@{K\_MUTEX\_DEFINE}}
+\index{K\_MUTEX\_DEFINE@{K\_MUTEX\_DEFINE}!rtdb.c@{rtdb.c}}
+\doxysubsubsection{\texorpdfstring{K\_MUTEX\_DEFINE()}{K\_MUTEX\_DEFINE()}}
+{\footnotesize\ttfamily K\+\_\+\+MUTEX\+\_\+\+DEFINE (\begin{DoxyParamCaption}\item[{rtdb\+\_\+mutex}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{rtdb_8c_a1e2adc1af764150f2612f4acdd702182}\label{rtdb_8c_a1e2adc1af764150f2612f4acdd702182}} 
+\index{rtdb.c@{rtdb.c}!rtdb\_get\_state\_copy@{rtdb\_get\_state\_copy}}
+\index{rtdb\_get\_state\_copy@{rtdb\_get\_state\_copy}!rtdb.c@{rtdb.c}}
+\doxysubsubsection{\texorpdfstring{rtdb\_get\_state\_copy()}{rtdb\_get\_state\_copy()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structrtdb__state__t}{rtdb\+\_\+state\+\_\+t}} rtdb\+\_\+get\+\_\+state\+\_\+copy (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+
+
+Gets a consistent copy of the full system state. 
+
+
+\begin{DoxyItemize}
+\item This function locks the mutex, copies the struct, and unlocks. It ensures that the consumer (e.\+g., Sig\+Gen) never reads a half-\/updated state.
+\item \begin{DoxyReturn}{Returns}
+A copy of the current \mbox{\hyperlink{structrtdb__state__t}{rtdb\+\_\+state\+\_\+t}}. 
+\end{DoxyReturn}
+
+\end{DoxyItemize}Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{rtdb_8c_a1e2adc1af764150f2612f4acdd702182_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{rtdb_8c_afae46e24b6ccddb292baa4b3f08ab2c3}\label{rtdb_8c_afae46e24b6ccddb292baa4b3f08ab2c3}} 
+\index{rtdb.c@{rtdb.c}!rtdb\_set\_amplitude@{rtdb\_set\_amplitude}}
+\index{rtdb\_set\_amplitude@{rtdb\_set\_amplitude}!rtdb.c@{rtdb.c}}
+\doxysubsubsection{\texorpdfstring{rtdb\_set\_amplitude()}{rtdb\_set\_amplitude()}}
+{\footnotesize\ttfamily void rtdb\+\_\+set\+\_\+amplitude (\begin{DoxyParamCaption}\item[{float}]{amp }\end{DoxyParamCaption})}
+
+
+
+Sets the signal amplitude. 
+
+
+\begin{DoxyItemize}
+\item Thread-\/safe setter protected by k\+\_\+mutex.
+\item 
+\begin{DoxyParams}{Parameters}
+{\em amp} & Amplitude in Volts (Range\+: 0.\+0 to 2.\+5). \\
+\hline
+\end{DoxyParams}
+
+\end{DoxyItemize}Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{rtdb_8c_afae46e24b6ccddb292baa4b3f08ab2c3_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{rtdb_8c_acd165b37f36ab899443ca5bea3814850}\label{rtdb_8c_acd165b37f36ab899443ca5bea3814850}} 
+\index{rtdb.c@{rtdb.c}!rtdb\_set\_frequency@{rtdb\_set\_frequency}}
+\index{rtdb\_set\_frequency@{rtdb\_set\_frequency}!rtdb.c@{rtdb.c}}
+\doxysubsubsection{\texorpdfstring{rtdb\_set\_frequency()}{rtdb\_set\_frequency()}}
+{\footnotesize\ttfamily void rtdb\+\_\+set\+\_\+frequency (\begin{DoxyParamCaption}\item[{int}]{freq }\end{DoxyParamCaption})}
+
+
+
+Sets the signal frequency. 
+
+
+\begin{DoxyItemize}
+\item Thread-\/safe setter protected by k\+\_\+mutex.
+\item 
+\begin{DoxyParams}{Parameters}
+{\em freq} & Frequency in Hz (Range\+: 10 to 100). \\
+\hline
+\end{DoxyParams}
+
+\end{DoxyItemize}Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{rtdb_8c_acd165b37f36ab899443ca5bea3814850_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{rtdb_8c_ac081c4fd03ad8ed84c4082e70a71321b}\label{rtdb_8c_ac081c4fd03ad8ed84c4082e70a71321b}} 
+\index{rtdb.c@{rtdb.c}!rtdb\_set\_output\_active@{rtdb\_set\_output\_active}}
+\index{rtdb\_set\_output\_active@{rtdb\_set\_output\_active}!rtdb.c@{rtdb.c}}
+\doxysubsubsection{\texorpdfstring{rtdb\_set\_output\_active()}{rtdb\_set\_output\_active()}}
+{\footnotesize\ttfamily void rtdb\+\_\+set\+\_\+output\+\_\+active (\begin{DoxyParamCaption}\item[{bool}]{active }\end{DoxyParamCaption})}
+
+
+
+Toggles the main output. 
+
+
+\begin{DoxyItemize}
+\item 
+\begin{DoxyParams}{Parameters}
+{\em active} & true to enable PWM output, false to disable (0V). \\
+\hline
+\end{DoxyParams}
+
+\end{DoxyItemize}Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{rtdb_8c_ac081c4fd03ad8ed84c4082e70a71321b_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{rtdb_8c_aa370e47f038a60de31891a74d0cff6f9}\label{rtdb_8c_aa370e47f038a60de31891a74d0cff6f9}} 
+\index{rtdb.c@{rtdb.c}!rtdb\_set\_wave\_type@{rtdb\_set\_wave\_type}}
+\index{rtdb\_set\_wave\_type@{rtdb\_set\_wave\_type}!rtdb.c@{rtdb.c}}
+\doxysubsubsection{\texorpdfstring{rtdb\_set\_wave\_type()}{rtdb\_set\_wave\_type()}}
+{\footnotesize\ttfamily void rtdb\+\_\+set\+\_\+wave\+\_\+type (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{rtdb_8h_ace4881961545fb59dbc8d12eb40ae3db}{wave\+\_\+type\+\_\+t}}}]{type }\end{DoxyParamCaption})}
+
+
+
+Sets the waveform type. 
+
+
+\begin{DoxyItemize}
+\item 
+\begin{DoxyParams}{Parameters}
+{\em type} & One of WAVE\+\_\+\+SQUARE, WAVE\+\_\+\+TRIANGLE, WAVE\+\_\+\+SINE. \\
+\hline
+\end{DoxyParams}
+
+\end{DoxyItemize}Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{rtdb_8c_aa370e47f038a60de31891a74d0cff6f9_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{rtdb_8c_a433b10b73774ee9c3bdd8ca1d95da7b9}\label{rtdb_8c_a433b10b73774ee9c3bdd8ca1d95da7b9}} 
+\index{rtdb.c@{rtdb.c}!rtdb\_toggle\_output\_status@{rtdb\_toggle\_output\_status}}
+\index{rtdb\_toggle\_output\_status@{rtdb\_toggle\_output\_status}!rtdb.c@{rtdb.c}}
+\doxysubsubsection{\texorpdfstring{rtdb\_toggle\_output\_status()}{rtdb\_toggle\_output\_status()}}
+{\footnotesize\ttfamily void rtdb\+\_\+toggle\+\_\+output\+\_\+status (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{rtdb_8c_a018aaa643b434a1cdbb22bc1b597a167}\label{rtdb_8c_a018aaa643b434a1cdbb22bc1b597a167}} 
+\index{rtdb.c@{rtdb.c}!rtdb\_current\_state@{rtdb\_current\_state}}
+\index{rtdb\_current\_state@{rtdb\_current\_state}!rtdb.c@{rtdb.c}}
+\doxysubsubsection{\texorpdfstring{rtdb\_current\_state}{rtdb\_current\_state}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structrtdb__state__t}{rtdb\+\_\+state\+\_\+t}} rtdb\+\_\+current\+\_\+state\hspace{0.3cm}{\ttfamily [static]}}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{= \{}
+\DoxyCodeLine{    .wave\_type = \mbox{\hyperlink{rtdb_8h_ace4881961545fb59dbc8d12eb40ae3dba9f0673bb63db1439b7f3275074f3816e}{WAVE\_SQUARE}},}
+\DoxyCodeLine{    .amplitude\_v = 0.0f,}
+\DoxyCodeLine{    .frequency\_hz = 10,}
+\DoxyCodeLine{    .output\_active = \textcolor{keyword}{false}}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}

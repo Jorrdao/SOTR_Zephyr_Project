@@ -1,0 +1,15 @@
+<map id="input_thread_entry" name="input_thread_entry">
+<area shape="rect" id="node1" title="Entry point for the Input Processing Thread." alt="" coords="5,157,151,184"/>
+<area shape="rect" id="node2" href="$input__thread_8c.html#ac6669d7c99fdc1c75b2f0bfd1550cc02" title=" " alt="" coords="220,5,340,32"/>
+<area shape="rect" id="node3" href="$input__thread_8c.html#a958d9dd5a2a52ccf8924a477609dec0e" title=" " alt="" coords="215,56,345,83"/>
+<area shape="rect" id="node4" href="$gantt__logger_8c.html#a80eccf5aa3ce4dce8c1cf69d60b29551" title="Registers a thread for logging." alt="" coords="199,107,361,133"/>
+<area shape="rect" id="node5" href="$input__thread_8c.html#a8c19a5521d09bfe93a251ee110954d79" title=" " alt="" coords="229,208,331,235"/>
+<area shape="rect" id="node8" href="$input__thread_8c.html#a9589b28d797dc4e7f26824a2cd1561b2" title=" " alt="" coords="229,157,331,184"/>
+<area shape="rect" id="node10" href="$input__thread_8c.html#a29b23565e071f6d01706bbe9c0805dba" title=" " alt="" coords="229,259,331,285"/>
+<area shape="rect" id="node12" href="$input__thread_8c.html#a7a4ae636121b43febe55603fca62c956" title=" " alt="" coords="229,309,331,336"/>
+<area shape="rect" id="node6" href="$rtdb_8c.html#a1e2adc1af764150f2612f4acdd702182" title="Gets a consistent copy of the full system state." alt="" coords="417,233,572,260"/>
+<area shape="rect" id="node7" href="$rtdb_8c.html#aa370e47f038a60de31891a74d0cff6f9" title="Sets the waveform type." alt="" coords="418,183,571,209"/>
+<area shape="rect" id="node9" href="$rtdb_8c.html#acd165b37f36ab899443ca5bea3814850" title="Sets the signal frequency." alt="" coords="421,132,568,159"/>
+<area shape="rect" id="node11" href="$rtdb_8c.html#ac081c4fd03ad8ed84c4082e70a71321b" title="Toggles the main output." alt="" coords="409,284,580,311"/>
+<area shape="rect" id="node13" href="$rtdb_8c.html#afae46e24b6ccddb292baa4b3f08ab2c3" title="Sets the signal amplitude." alt="" coords="421,335,569,361"/>
+</map>
