@@ -7,14 +7,13 @@
 /**
  * @file rtdb.h
  * @brief Real-Time Database (RTDB) Module.
- * * This module acts as a thread-safe shared memory region.
- * It uses Mutexes to protect read/write operations on the system state,
- * preventing Race Conditions between the High-Priority SigGen thread
- * and the Lower-Priority Command/Input threads.
+ * * This module acts as the central Shared Memory region for the system.
+ * It implements Thread-Safe access using Mutexes to prevent Race Conditions
+ * and ensure data consistency between high-priority (SigGen) and low-priority tasks.
  */
 
 /* ============================================================================
- * TIPOS DE DADOS
+ * DATA STRUCTURES
  * ============================================================================
  */
 
@@ -38,49 +37,53 @@ typedef struct {
     bool output_active;    /**< Master Output Switch (ON/OFF) */
 } rtdb_state_t;
 
+/**
+ * @brief Real-Time System Statistics (Profiling).
+ * Stores the maximum measured execution times (High-Water Mark).
+ */
+typedef struct {
+    uint32_t wcet_siggen_us;  /**< Worst-Case Execution Time for Hard RT Task (SigGen) */
+    uint32_t resp_input_us;   /**< Response Time for Input Task (Exec + Blocking) */
+    uint32_t resp_cmd_us;     /**< Response Time for Command Task (Exec + Blocking) */
+    uint32_t resp_output_us;
+} sys_stats_t;
+
 /* ============================================================================
- * API PÚBLICA (Thread-Safe)
+ * PUBLIC API (Thread-Safe)
  * ============================================================================
  */
 
 /**
  * @brief Initializes the Real-Time Database.
  * Must be called before any thread tries to access the state.
- * Initializes the internal Mutex.
  */
 void rtdb_init(void);
 
 /**
- * @brief Sets the signal frequency.
- * * Thread-safe setter protected by k_mutex.
- * * @param freq Frequency in Hz (Range: 10 to 100).
+ * @brief Updates a specific timing metric.
+ * * Used by worker threads to report their execution duration.
+ * Keeps the maximum value observed (Peak Hold).
+ * * @param metric_id 0=SigGen(WCET), 1=Input(Response), 2=Command(Response).
+ * @param duration_cycles Duration in CPU cycles.
  */
+void rtdb_update_metric(int metric_id, uint32_t duration_cycles);
+
+/**
+ * @brief Gets a copy of the system statistics.
+ * * @return A sys_stats_t struct containing the max times in microseconds.
+ */
+sys_stats_t rtdb_get_stats_copy(void);
+
+// --- Setters ---
 void rtdb_set_frequency(int freq);
-
-/**
- * @brief Sets the signal amplitude.
- * * Thread-safe setter protected by k_mutex.
- * * @param amp Amplitude in Volts (Range: 0.0 to 2.5).
- */
 void rtdb_set_amplitude(float amp);
-
-/**
- * @brief Sets the waveform type.
- * * @param type One of WAVE_SQUARE, WAVE_TRIANGLE, WAVE_SINE.
- */
 void rtdb_set_wave_type(wave_type_t type);
-
-/**
- * @brief Toggles the main output.
- * * @param active true to enable PWM output, false to disable (0V).
- */
 void rtdb_set_output_active(bool active);
 
 /**
  * @brief Gets a consistent copy of the full system state.
- * * This function locks the mutex, copies the struct, and unlocks.
- * It ensures that the consumer (e.g., SigGen) never reads a half-updated state.
- * * @return A copy of the current rtdb_state_t.
+ * * Locks the mutex to ensure atomic read.
+ * * @return A copy of rtdb_state_t.
  */
 rtdb_state_t rtdb_get_state_copy(void);
 

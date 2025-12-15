@@ -33,4 +33,11 @@
  */
 void siggen_thread_entry(void *p1, void *p2, void *p3);
 
+/**
+ * @brief Retrieves the measured Worst-Case Execution Time (WCET).
+ * * Accesses the internal profiling variable safely.
+ * @return The maximum execution time measured so far (in microseconds).
+ */
+uint32_t get_siggen_wcet_us(void);
+
 #endif // SIGGEN_THREAD_H

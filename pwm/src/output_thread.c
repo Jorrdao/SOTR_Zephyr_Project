@@ -30,6 +30,9 @@ void output_thread_entry(void *p1, void *p2, void *p3) {
     gpio_pin_configure_dt(&led_act_spec, GPIO_OUTPUT_INACTIVE);
 
     while (1) {
+
+        uint32_t start = k_cycle_get_32();
+
         GANTT_LOG_START(gantt_id);
         // Obter cópia segura do estado
         rtdb_state_t state = rtdb_get_state_copy();
@@ -59,8 +62,10 @@ void output_thread_entry(void *p1, void *p2, void *p3) {
 
         // Debugging Output
         //printk("[%u] OUTPUT (Prio 10): A atualizar LEDs...\n", k_uptime_get_32());
-        k_msleep(500);
         GANTT_LOG_END(gantt_id);
+
+        uint32_t end = k_cycle_get_32();
+        rtdb_update_metric(3, end - start); // ID 3 = Output Response Time
         // Frequência de atualização de 10Hz é suficiente para UI.
         // 1000ms (1s) é demasiado lento, o utilizador sente lag ao carregar no botão.
         k_msleep(100); 
