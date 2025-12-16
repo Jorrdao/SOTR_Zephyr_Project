@@ -105,10 +105,10 @@ void process_command(char *full_cmd) {
             cmd_ok = true;
         }
     }
-    /* NEW: System Stats (Replaces WCET) */
+    /* System Stats  */
     else if (strncmp(cmd_content, "ST", 2) == 0) {
         sys_stats_t stats = rtdb_get_stats_copy();
-        char msg[160]; // Aumentei um pouco o buffer por segurança
+        char msg[160]; 
         
         snprintf(msg, sizeof(msg), 
             "#STATS (us): Sig(C)=%u, In(R)=%u, Cmd(R)=%u, Out(R)=%u$\r\n", 

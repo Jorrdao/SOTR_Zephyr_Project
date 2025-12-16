@@ -45,7 +45,7 @@ static struct k_thread output_thread_data;
  */
 void main(void) {
     printk("\n--- AWG System: Real-Time Orchestration ---\n");
-    // TODO: Chame a função de inicialização do RTDB aqui, se for externa (e.g., rtdb_init()).
+    
 
     // Initialize Telemetry
     if (gantt_logger_init() != 0) {
